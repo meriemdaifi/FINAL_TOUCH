@@ -310,7 +310,7 @@ Ce rapport de projet de fin d'\'etudes est l'aboutissement d'un travail de plusi
 
 En premier lieu, je tiens \`a exprimer ma sinc\`ere gratitude \`a mon \textbf{encadrant industriel au sein d'Expleo Group Maroc}, ing\'enieur senior sp\'ecialis\'e dans les syst\`emes embarqu\'es automobiles, pour m'avoir accueillie au sein de son \'equipe, orient\'ee avec expertise tout au long du projet, et partag\'e sa vaste exp\'erience du domaine de l'\textsc{adas}. Sa disponibilit\'e, ses conseils avis\'es et son soutien constant ont \'et\'e d\'eterminants dans la conduite de ce travail.
 
-Je remercie \'egalement toute l'\textbf{\'equipe technique d'Expleo Group Maroc}, notamment les ing\'enieurs du p\^ole syst\`emes embarqu\'es embarqu\'es et validation automobile, pour les nombreux \'echanges enrichissants et leur aide pr\'ecieuse lors des phases de validation et d'int\'egration. Leur expertise collective a consid\'erablement enrichi ma compr\'ehension des contraintes industrielles li\'ees au d\'eveloppement embarqu\'e.
+Je remercie \'egalement toute l'\textbf{\'equipe technique d'Expleo Group Maroc}, notamment les ing\'enieurs du p\^ole syst\`emes embarqu\'es et validation automobile, pour les nombreux \'echanges enrichissants et leur aide pr\'ecieuse lors des phases de validation et d'int\'egration. Leur expertise collective a consid\'erablement enrichi ma compr\'ehension des contraintes industrielles li\'ees au d\'eveloppement embarqu\'e.
 
 J'adresse mes vifs remerciements \`a l'\textbf{\'equipe ADAS de Stellantis}, et en particulier aux ing\'enieurs syst\`emes et s\'ecurit\'e fonctionnelle qui ont contribu\'e \`a la d\'efinition des exigences et des sc\'enarios de validation. Leur exigence de qualit\'e et leur vision strat\'egique en mati\`ere de s\'ecurit\'e active ont fortement guid\'e les choix de conception retenus dans ce projet.
 
@@ -344,7 +344,7 @@ La couche de perception exploite la biblioth\`eque MediaPipe pour la d\'etection
 
 Un r\'eseau de neurones convolutif (\textsc{cnn}) de type DrowsinessCNN, d\'evelopp\'e avec PyTorch, compl\`ete la cha\^ine de perception. Ce r\'eseau prend en entr\'ee des images en niveaux de gris de r\'esolution $48 \times 48$ pixels et classifie l'\'etat oculaire en trois cat\'egories : OPEN (yeux ouverts), CLOSED (yeux ferm\'es) et YAWNING (b\^aillement). Son architecture s\'equentielle comprend trois blocs convolutifs (\textit{Conv2D + Batch Normalization + ReLU + MaxPooling}) suivis de deux couches enti\`erement connect\'ees avec r\'egularisation par \textit{dropout}.
 
-La couche de d\'ecision est impl\'ement\'ee sous forme d'une \textsc{fsm} embarqu\'ee de type ECU (\textit{Electronic Control Unit}), d\'efinie dans le module \texttt{ecu\_decision.py}. Cette machine \`a sept \'etats (ATTENTIVE, WARNING\_DROWSINESS, WARNING\_DISTRACTION, FATIGUE, DISTRACTED\_HEAD, DISTRACTED\_NO\_FACE, EMERGENCY) int\`egre un m\'ecanisme d'hyst\'er\'esis \`a 5 trames consacutives et une escalade automatique des alertes sur trois niveaux (alerte visuelle/sonore, vibrations, freinage d'urgence).
+La couche de d\'ecision est impl\'ement\'ee sous forme d'une \textsc{fsm} embarqu\'ee de type ECU (\textit{Electronic Control Unit}), d\'efinie dans le module \texttt{ecu\_decision.py}. Cette machine \`a sept \'etats (ATTENTIVE, WARNING\_DROWSINESS, WARNING\_DISTRACTION, FATIGUE, DISTRACTED\_HEAD, DISTRACTED\_NO\_FACE, EMERGENCY) int\`egre un m\'ecanisme d'hyst\'er\'esis \`a 5 trames cons\'ecutives et une escalade automatique des alertes sur trois niveaux (alerte visuelle/sonore, vibrations, freinage d'urgence).
 
 La validation du syst\`eme suit la m\'ethodologie du Cycle en~V conform\'ement aux exigences de la norme ISO~26262 (niveau ASIL~B estim\'e). Trois niveaux de validation sont mis en \oe uvre : MIL (Model-In-the-Loop) via simulation MATLAB/Simulink, SIL (Software-In-the-Loop) via campagne de tests pytest avec couverture de code, et HIL (Hardware-In-the-Loop) via banc d'injection de sc\'enarios. Sept sc\'enarios de test couvrent les situations nominales et d\'egrad\'ees, avec analyse AMDEC des modes de d\'efaillance.
 
@@ -836,7 +836,7 @@ Mercedes-Benz & Attention Assist & Volant + cam\'era int\'erieure & L2 & Type 1 
 BMW & DrivingAssistant & Cam\'era + EAR + PERCLOS & L2 & Type 1 \\
 Tesla & Driver Monitoring & Cam\'era IR + gazetrack & L2 & Type 1 \\
 Volvo & Driver Understanding & Multi-cam\'eras & L3 & Type 2 \\
-Waymo & Driver State Monitor & Multi-capteurs fus\'elonn\'es & L4 & Type 3 \\
+Waymo & Driver State Monitor & Multi-capteurs fusionn\'es & L4 & Type 3 \\
 \textbf{Stellantis (projet)} & \textbf{DMS int\'egr\'e} & \textbf{EAR+PERCLOS+CNN+pose} & \textbf{L2+} & \textbf{Type 1\&2} \\
 \bottomrule
 \end{tabular}
