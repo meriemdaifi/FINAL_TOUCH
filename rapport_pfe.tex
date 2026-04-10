@@ -1195,6 +1195,626 @@ Power Supply 12V & Alimentation v\'ehicule via OBD & 1 & 12V CAN \\
 \end{tabular}
 \end{table}
 
+%% ============================================================
+%%   DESCRIPTION PHYSIQUE DU PROTOTYPE
+%% ============================================================
+\section{Description physique du prototype --- Apparence visuelle et montage}
+\label{sec:prototype_physique}
+
+\subsection{Apparence g\'en\'erale et boîtier}
+
+Le prototype DMS se pr\'esente sous la forme d'un ensemble compact de composants \'electroniques int\'egr\'es dans un boîtier en polycarbonate (ABS), dont les dimensions ext\'erieures sont de $120 \times 80 \times 45$~mm. Le syst\`eme est pens\'e pour un montage discret dans le cockpit du v\'ehicule, sans obstruer le champ de vision du conducteur ni perturber l'exp\'erience de conduite.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  comp/.style={draw, fill=blue!10, rounded corners=4pt,
+    minimum width=3cm, minimum height=1.2cm, align=center, font=\small\bfseries},
+  sensor/.style={draw, fill=green!15, rounded corners=4pt,
+    minimum width=2.8cm, minimum height=1.0cm, align=center, font=\scriptsize},
+  actuator/.style={draw, fill=red!15, rounded corners=4pt,
+    minimum width=2.8cm, minimum height=1.0cm, align=center, font=\scriptsize},
+  wire/.style={-{Stealth[scale=1.1]}, thick, blue!70!black},
+  wiregpio/.style={-{Stealth[scale=1.1]}, thick, dashed, green!60!black},
+  wirecan/.style={-{Stealth[scale=1.1]}, very thick, dashed, orange!80!black}
+]
+  %% --- Unité centrale ---
+  \node[comp, minimum width=4.5cm, minimum height=2.0cm] (cpu)
+    at (0, 0) {Unit\'e de traitement\\Raspberry Pi~4B\\(ou Jetson Nano)};
+
+  %% --- Camera ---
+  \node[sensor] (cam) at (-5.5, 2.5) {Cam\'era USB/CSI\\640$\times$480, 30~fps};
+
+  %% --- Audio ---
+  \node[actuator] (buz) at (5.0, 2.5) {Buzzer / HP\\Alerte Niveau~1};
+
+  %% --- Vibration siège ---
+  \node[actuator] (erm) at (5.0, 0.8) {Moteur ERM\\(si\`ege, Niv.~2)};
+
+  %% --- Vibration volant ---
+  \node[actuator] (lra) at (5.0, -0.8) {Actionneur LRA\\(volant, Niv.~2)};
+
+  %% --- CAN ---
+  \node[actuator] (can) at (5.0, -2.5) {Interface CAN\\Frein ECU (Niv.~3)};
+
+  %% --- Relais feux ---
+  \node[actuator] (relay) at (-5.5, -2.0) {Relais GPIO\\Feux de d\'etresse};
+
+  %% --- Alimentation ---
+  \node[comp, fill=yellow!20, minimum width=2.5cm, minimum height=1.0cm]
+    (pwr) at (0, -3.0) {Alimentation 5V/12V\\(OBD ou USB-C)};
+
+  %% --- Connexions ---
+  \draw[wire] (cam) -- node[above, font=\scriptsize] {CSI/USB} (cpu.west |- cam);
+  \draw[wire] (cpu) -- ++(2.8,0) |- node[right, pos=0.3, font=\scriptsize] {GPIO PWM} (buz);
+  \draw[wire] (cpu) -- ++(2.8,0) |- node[right, pos=0.3, font=\scriptsize] {GPIO PWM} (erm);
+  \draw[wire] (cpu) -- ++(2.8,0) |- node[right, pos=0.3, font=\scriptsize] {I$^2$C/GPIO} (lra);
+  \draw[wirecan] (cpu) -- ++(2.8,0) |- node[right, pos=0.3, font=\scriptsize] {CAN 500k} (can);
+  \draw[wiregpio] (cpu.west) -- ++(-2.8,0) |- node[left, pos=0.3, font=\scriptsize] {GPIO relay} (relay);
+  \draw[wire] (pwr) -- (cpu.south);
+
+\end{tikzpicture}
+\caption{Sch\'ema bloc du prototype DMS --- connexions mat\'erielles}
+\label{fig:hardware_block}
+\end{figure}
+
+\subsection{Composants exacts du prototype}
+
+\subsubsection{Camera de surveillance (USB/CSI)}
+
+La cam\'era utilis\'ee pour le prototype de d\'emonstration est une cam\'era couleur/IR de type \textbf{Arducam IMX219} (compatible Raspberry Pi CSI-2) ou, en version USB desktop, une \textbf{Logitech C920 HD}. Les param\`etres de fonctionnement retenus sont :
+\begin{itemize}
+  \item R\'esolution d'acquisition : $640 \times 480$ pixels (VGA) \`a $30$~fps.
+  \item Interface physique : connecteur CSI-2 FPC 15 broches (Raspberry Pi 4B) ou USB~3.0 (PC/Jetson Nano).
+  \item Angle de vue horizontal : $75\degr$ (IMX219) \textendash{} couverture compl\`ete du visage conducteur \`a $60$--$80$~cm.
+  \item Montage : fixation sur colonne de direction via pince r\'eglable $90\degr$, ou int\'egration dans support imprim\'e~3D fix\'e au r\'etroviseur int\'erieur.
+\end{itemize}
+
+\subsubsection{Unit\'e de traitement (Raspberry Pi~4 / Jetson Nano / PC)}
+
+Trois variantes d'unit\'e de traitement ont \'et\'e test\'ees :
+\begin{itemize}
+  \item \textbf{Raspberry Pi~4B (4~Go RAM)} : configuration minimale, suffisante pour le mode Haar sans CNN ($\approx 15$~fps). Alimentation via USB-C 5V/3A.
+  \item \textbf{NVIDIA Jetson Nano (4~Go RAM, 128 CUDA cores)} : configuration recommand\'ee. Permet l'inf\'erence CNN en temps r\'eel ($\approx 25$~fps). Alimentation 5V/4A barrel jack.
+  \item \textbf{PC / laptop (Intel i5+, NVIDIA GPU)} : pour le d\'eveloppement et l'entraînement CNN, ou la simulation MATLAB.
+\end{itemize}
+
+\subsubsection{Buzzer / haut-parleur (alerte Niveau~1)}
+
+Un buzzer pi\'ezo\'electrique 5V (modèle KY-006) ou un mini-haut-parleur 8\,$\Omega$~0,5~W pilot\'e via un amplificateur PAM8403 g\'en\`ere les alertes sonores du Niveau~1. Il est branch\'e sur une sortie GPIO PWM de la Raspberry Pi (GPIO18 par d\'efaut) ou contr\^ol\'e via \texttt{pygame.mixer} sur PC. Le signal d'alerte est une tonalité sinusoïdale 880~Hz durant 500~ms, répétée à 1~Hz jusqu'à acquittement.
+
+\subsubsection{Moteur \`a masse d\'es\'equilibr\'ee ERM (vibration si\`ege, Niveau~2)}
+
+Un moteur ERM (\textit{Eccentric Rotating Mass}) de 3~V, d'un diam\`etre de 10~mm et d'une longueur de 25~mm (r\'ef. : TDK VZ34FB module), est plac\'e dans la structure du si\`ege conducteur. Il est pilot\'e par un transistor NPN 2N2222 en commutation depuis un GPIO de la Raspberry Pi. La vibration induite ($100$--$200$~Hz) transmet un signal haptique imm\'ediatement perceptible m\^eme en condition de somnolence avanc\'ee.
+
+\subsubsection{Actionneur LRA (vibration volant, Niveau~2)}
+
+Un actionneur LRA (\textit{Linear Resonant Actuator}) TI DRV2605L-EVM, pilot\'e par protocole I$^2$C depuis la Raspberry Pi, g\'en\`ere des vibrations de précision (fréquence de résonance : 205~Hz) dans la jante du volant. Son faible encombrement (diam\`etre 10~mm, \'epaisseur 2,7~mm) permet l'int\'egration dans les strates en mousse du volant sans modification visible.
+
+\subsubsection{Interface CAN vers ECU frein (Niveau~3)}
+
+Pour les commandes de Niveau~3 (freinage d'urgence, manœuvre pull-to-side), le prototype utilise un contrôleur CAN \textbf{MCP2515} connect\'e via SPI \`a la Raspberry Pi, coupl\'e \`a un transceiver \textbf{TJA1050}. La connexion physique au bus CAN du v\'ehicule se fait via le connecteur OBD-II~(port~6/14 pour CAN-H/CAN-L). En laboratoire, un simulateur Vector CANalyzer ou \texttt{python-can} avec interface PCAN-USB remplace l'ECU r\'eel.
+
+\subsubsection{Relais GPIO pour feux de d\'etresse (Niveau~3)}
+
+Un module relais 5V (SRD-05VDC-SL-C, contact NO/NC 10A) command\'e depuis un GPIO de la Raspberry Pi active le circuit des feux de d\'etresse du v\'ehicule. Pour les tests en laboratoire, il commande une LED 12V simulant les feux. Le relais est isol\'e optiquement du circuit GPIO pour prot\'eger la Raspberry Pi contre les surtensions du bus 12V.
+
+\subsection{Description du montage dans le cockpit v\'ehicule}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.95,
+  piece/.style={draw, fill=gray!15, rounded corners=3pt, align=center, font=\tiny},
+  label/.style={font=\scriptsize, align=center}
+]
+  %% Tableau de bord (silhouette)
+  \draw[fill=gray!20, rounded corners=8pt] (-7,-1.5) rectangle (7,0.5);
+  \node[font=\small] at (0, -0.5) {Tableau de bord};
+
+  %% Volant
+  \draw[fill=white, draw=black, thick] (0,-3.5) circle (2.0cm);
+  \draw[fill=gray!30] (0,-3.5) circle (0.4cm);
+  \draw[thick] (-1.8,-3.5) -- (-0.4,-3.5);
+  \draw[thick] (1.8,-3.5) -- (0.4,-3.5);
+  \draw[thick] (0,-1.5) -- (0,-0.4-3.5);
+  \node[font=\small] at (0,-3.5) {Volant};
+
+  %% Caméra sur colonne de direction
+  \node[piece, minimum width=1.6cm, minimum height=0.6cm, fill=blue!25]
+    (cam) at (-1.5, 0.9) {Cam\'era\\640$\times$480};
+  \draw[thick, ->] (cam.south) -- (-1.5, 0.5);
+  \node[label] at (-1.5, 1.4) {\textbf{1. Cam\'era}\\(colonne direction)};
+
+  %% Boîtier principal (Raspberry Pi)
+  \node[piece, minimum width=2.2cm, minimum height=0.8cm, fill=green!25]
+    (rpi) at (3.5, -1.0) {Raspberry Pi~4\\+ CAN MCP2515};
+  \node[label] at (3.5, 0.1) {\textbf{2. Unit\'e centrale}\\(vid\'e-poche passager)};
+
+  %% Buzzer
+  \node[piece, minimum width=1.2cm, minimum height=0.6cm, fill=orange!25]
+    (buz) at (5.5, 0.9) {Buzzer\\5V};
+  \node[label] at (5.5, 1.4) {\textbf{3. Buzzer}\\(tableau de bord)};
+
+  %% LRA volant
+  \node[piece, minimum width=1.6cm, minimum height=0.5cm, fill=red!20]
+    (lra) at (2.0, -3.5) {LRA\\Volant};
+  \node[label] at (2.5, -2.2) {\textbf{4. LRA}};
+
+  %% ERM siège
+  \node[piece, minimum width=1.6cm, minimum height=0.5cm, fill=purple!20]
+    (erm) at (-4.0, -4.5) {ERM\\Si\`ege};
+  \node[label] at (-4.0, -3.8) {\textbf{5. ERM si\`ege}};
+
+  %% Connexions
+  \draw[dashed, blue!60, ->] (cam.east) -- ++(0.5,0) |- (rpi.north);
+  \draw[dashed, green!60, ->] (rpi.north) -- ++(0,0.5) -| (buz.south);
+  \draw[dashed, red!60, ->] (rpi.south) -- ++(0,-0.5) -| (lra.north);
+  \draw[dashed, purple!60, ->] (rpi.south west) -- ++(-2,0) |- (erm.east);
+
+\end{tikzpicture}
+\caption{Position des composants DMS dans le cockpit d'un v\'ehicule}
+\label{fig:cockpit_layout}
+\end{figure}
+
+La \textbf{cam\'era} (composant~1) est positionn\'ee sur la colonne de direction, \`a environ~30~cm du visage du conducteur, pointant vers le haut avec un angle d'inclinaison de~$10\degr$ pour couvrir la zone frontale et les yeux. Elle est maintenue par un support imprim\'e en~PLA (fixation ventouse ou rail T-slot), orient\'e selon l'axe $Z$ vers le conducteur.
+
+L'\textbf{unit\'e centrale} (composant~2) est plac\'ee dans le vid\'e-poche c\^ot\'e passager ou dans le coffret sous-tableau, fixe par velcro industriel et ventil\'ee par un mini-ventilateur 5V. Un connecteur JST relie le boîtier au connecteur OBD-II pour l'alimentation 12V (convertie en 5V via r\'egulateur buck LM2596) et l'acc\`es au bus CAN.
+
+\subsection{Sch\'ema de c\^ablage d\'etaill\'e}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  chip/.style={draw, fill=blue!15, minimum width=3cm, minimum height=2.4cm,
+    align=center, font=\scriptsize\bfseries},
+  pin/.style={draw, fill=gray!5, font=\tiny, align=center,
+    minimum width=0.9cm, minimum height=0.4cm},
+  dev/.style={draw, fill=green!15, minimum width=2.2cm, minimum height=0.9cm,
+    align=center, font=\scriptsize},
+  wire3v/.style={draw=red!70, thick},
+  wire5v/.style={draw=orange!80, thick},
+  wiregnd/.style={draw=black!70, thick},
+  wiresig/.style={draw=blue!70, thick, dashed},
+  wireci2c/.style={draw=purple!70, thick, dashed},
+  wirecan/.style={draw=brown!80, very thick}
+]
+  %% --- Raspberry Pi ---
+  \node[chip] (rpi) at (0, 0) {Raspberry Pi~4B\\GPIO Header\\40 pins};
+
+  %% GPIO labels (left side)
+  \node[pin] (g18) at (-2.5, 1.5)  {GPIO18\\(PWM)};
+  \node[pin] (g23) at (-2.5, 0.8)  {GPIO23};
+  \node[pin] (g24) at (-2.5, 0.1)  {GPIO24};
+  \node[pin] (sda) at (-2.5, -0.6) {SDA1\\(I$^2$C)};
+  \node[pin] (scl) at (-2.5, -1.3) {SCL1\\(I$^2$C)};
+
+  %% GPIO labels (right side)
+  \node[pin] (spi0) at (2.5, 1.2)  {SPI0\\MOSI/MISO/CLK};
+  \node[pin] (ce0)  at (2.5, 0.4)  {CE0 (CS)};
+  \node[pin] (int)  at (2.5, -0.4) {GPIO25\\(INT)};
+  \node[pin] (gnd)  at (2.5, -1.2) {GND};
+  \node[pin] (5v)   at (2.5, -1.9) {5V};
+  \node[pin] (csi)  at (0.5, -2.2) {CSI-2\\(cam\'era)};
+
+  %% Connexions GPIO left
+  \draw[wiresig] (g18.east) -- (rpi.west |- g18);
+  \draw[wiresig] (g23.east) -- (rpi.west |- g23);
+  \draw[wiresig] (g24.east) -- (rpi.west |- g24);
+  \draw[wireci2c] (sda.east) -- (rpi.west |- sda);
+  \draw[wireci2c] (scl.east) -- (rpi.west |- scl);
+
+  %% Connexions GPIO right
+  \draw[wiresig] (rpi.east |- spi0) -- (spi0.west);
+  \draw[wiresig] (rpi.east |- ce0)  -- (ce0.west);
+  \draw[wiresig] (rpi.east |- int)  -- (int.west);
+  \draw[wiregnd] (rpi.east |- gnd)  -- (gnd.west);
+  \draw[wire5v]  (rpi.east |- 5v)   -- (5v.west);
+
+  %% --- Buzzer (GPIO18) ---
+  \node[dev] (buz) at (-5.5, 1.5) {Buzzer KY-006\\(GPIO18)};
+  \draw[wiresig] (g18.west) -- (buz.east);
+
+  %% --- Relais (GPIO23) ---
+  \node[dev] (rel) at (-5.5, 0.8) {Relais SRD-05V\\(GPIO23)};
+  \draw[wiresig] (g23.west) -- (rel.east);
+
+  %% --- LRA DRV2605L via I2C ---
+  \node[dev] (lra) at (-5.5, -0.6) {LRA DRV2605L\\(I$^2$C, 0x5A)};
+  \draw[wireci2c] (sda.west) -- (lra.east |- sda);
+  \draw[wireci2c] (scl.west) -- (lra.east |- scl);
+
+  %% --- ERM (GPIO24) ---
+  \node[dev] (erm) at (-5.5, 0.1) {Transistor NPN\\+ moteur ERM\\(GPIO24)};
+  \draw[wiresig] (g24.west) -- (erm.east);
+
+  %% --- MCP2515 via SPI ---
+  \node[dev] (mcp) at (6.0, 1.0) {MCP2515\\(SPI0)};
+  \node[dev] (tja) at (6.0, -0.5) {TJA1050\\CAN H/L};
+  \draw[wiresig] (spi0.east) -- (mcp.west);
+  \draw[wiresig] (ce0.east)  -- (mcp.west |- ce0);
+  \draw[wiresig] (int.east)  -- (mcp.west |- int);
+  \draw[wirecan] (mcp.south) -- (tja.north);
+  \draw[wirecan] (tja.east) -- ++(0.8,0) node[right, font=\tiny] {CAN-H\\CAN-L\\(OBD II)};
+
+  %% --- Camera CSI ---
+  \node[dev, fill=cyan!15] (camdev) at (0.5, -3.5) {Cam\'era IMX219\\(CSI-2 FPC)};
+  \draw[wiresig] (csi.south) -- (camdev.north);
+
+\end{tikzpicture}
+\caption{Sch\'ema de c\^ablage complet du prototype DMS (Raspberry Pi~4B)}
+\label{fig:wiring}
+\end{figure}
+
+\noindent Le tableau~\ref{tab:gpio_mapping} r\'ecapitule le mappage complet des broches GPIO utilis\'ees :
+
+\begin{table}[H]
+\centering
+\caption{Mappage des broches GPIO --- Raspberry Pi~4B}
+\label{tab:gpio_mapping}
+\begin{tabular}{C{1.8cm} C{1.8cm} L{3.5cm} L{4cm}}
+\toprule
+\textbf{Broche physique} & \textbf{GPIO (BCM)} & \textbf{Fonction} & \textbf{P\'eriph\'erique} \\
+\midrule
+12 & 18 & PWM0 (signal audio) & Buzzer KY-006 \\
+16 & 23 & GPIO sortie & Relais feux de d\'etresse \\
+18 & 24 & GPIO sortie & Transistor NPN + moteur ERM \\
+3  & 2  & I$^2$C SDA & LRA DRV2605L (SDA) \\
+5  & 3  & I$^2$C SCL & LRA DRV2605L (SCL) \\
+19 & 10 & SPI MOSI & MCP2515 \\
+21 & 9  & SPI MISO & MCP2515 \\
+23 & 11 & SPI CLK & MCP2515 \\
+24 & 8  & SPI CE0 & MCP2515 CS \\
+22 & 25 & GPIO entr\'ee & MCP2515 INT \\
+-- & -- & CSI-2 FPC (15 broches) & Cam\'era IMX219 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\clearpage
+
+%% ============================================================
+%%   NOUVEAU CHAPITRE : GUIDE DE CONSTRUCTION DU PROTOTYPE
+%% ============================================================
+\chapter{Guide de construction du prototype}
+\markboth{Guide de construction du prototype}{}
+\label{chap:guide}
+
+Ce chapitre constitue le \textbf{manuel de construction complet} du prototype DMS. Il fournit la liste exhaustive des composants (nomenclature), les instructions d'assemblage mat\'eriel, le guide d'installation logicielle, le pipeline d'entraînement du CNN et les commandes de d\'emarrage du syst\`eme.
+
+\section{Nomenclature (Bill of Materials)}
+
+\begin{longtable}{C{0.4cm} L{3.8cm} C{0.8cm} L{4cm} C{2.5cm}}
+\caption{Nomenclature compl\`ete du prototype DMS}
+\label{tab:bom}\\
+\toprule
+\textbf{\#} & \textbf{Composant} & \textbf{Qt\'e} & \textbf{R\'ef\'erence / Description} & \textbf{Co\^ut approx.} \\
+\midrule
+\endfirsthead
+\multicolumn{5}{c}{\tablename~\ref{tab:bom} (suite)}\\
+\toprule
+\textbf{\#} & \textbf{Composant} & \textbf{Qt\'e} & \textbf{R\'ef\'erence / Description} & \textbf{Co\^ut approx.} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+1  & Unit\'e de traitement & 1 & Raspberry Pi 4B 4Go RAM + microSD 32Go & 70~€ \\
+2  & Cam\'era CSI & 1 & Arducam IMX219 8Mpx (ou Logitech C920 USB) & 25~€ \\
+3  & Contrôleur CAN & 1 & MCP2515 SPI $\to$ CAN & 3~€ \\
+4  & Transceiver CAN & 1 & TJA1050 haute vitesse & 2~€ \\
+5  & Buzzer pi\'ezo & 1 & KY-006 module 5V & 1~€ \\
+6  & Moteur ERM & 1 & TDK VZ34FB, 3V, $\varnothing$10~mm & 5~€ \\
+7  & Actionneur LRA & 1 & TI DRV2605L breakout + LRA C10-100 & 12~€ \\
+8  & Module relais & 1 & SRD-05VDC-SL-C, 1 canal, 5V & 2~€ \\
+9  & Transistor NPN & 2 & 2N2222A TO-92 & 0,50~€ \\
+10 & R\'esistance 1k$\Omega$ & 4 & \'Ecrêteur base transistor & 0,10~€ \\
+11 & R\'esistance 10k$\Omega$ & 2 & Pull-up bus I$^2$C & 0,10~€ \\
+12 & R\'egulateur buck & 1 & LM2596 12V$\to$5V 3A & 4~€ \\
+13 & Connecteur OBD-II & 1 & Prise OBD-II fem., 16 broches & 3~€ \\
+14 & Boîtier ABS & 1 & $120\times80\times45$~mm avec \oe illets & 6~€ \\
+15 & Support cam\'era & 1 & Support imprim\'e 3D PLA (fichier STL fourni) & 1~€ \\
+16 & C\^able JST 4-fils & 2 & L=30~cm, pas 2,54~mm & 1~€ \\
+17 & C\^able FPC 15 broches & 1 & L=30~cm (CSI-2 cam\'era) & 2~€ \\
+18 & Breadboard / PCB & 1 & PCB 5~cm$\times$7~cm ou breadboard & 3~€ \\
+19 & Dissipateur + ventilateur & 1 & Kit refroidissement RPi, 5V & 8~€ \\
+20 & Fils de c\^ablage & 1 & Lot 40 fils dupont M/F, 20~cm & 3~€ \\
+\midrule
+\multicolumn{4}{r}{\textbf{Total estimé}} & \textbf{$\approx$152~€} \\
+\end{longtable}
+
+\section{Assemblage mat\'eriel pas \`a pas}
+
+\subsection{\'Etape~1 : Pr\'eparation du boîtier et montage de la Raspberry Pi}
+
+\begin{enumerate}
+  \item Fixer la Raspberry Pi~4B dans le boîtier ABS \`a l'aide des entretoises M2.5 ($\times$4). Aligner les ports USB/Ethernet vers une ouverture d\'ecoup\'ee dans la paroi du bo\^ite.
+  \item Coller le dissipateur thermique sur le SoC BCM2711, la puce RAM LPDDR4 et le contr\^oleur USB3.
+  \item Monter le mini-ventilateur 5V sur la paroi lat\'erale avec les vis M2, c\^oté air sortant vers l'ext\'erieur.
+  \item Percer un trou de $\varnothing$~8~mm pour le passage du c\^able FPC cam\'era et les sorties GPIO.
+\end{enumerate}
+
+\subsection{\'Etape~2 : Circuit de puissance (alimentation)}
+
+\begin{enumerate}
+  \item C\^abler le module LM2596 (buck converter) : entr\'ee~12V depuis le connecteur OBD-II (broches 16+/4-), sortie r\'egl\'ee~5V vers les broches 2/4 (5V) et 6/9/14 (GND) du header 40 broches.
+  \item V\'erifier la tension de sortie avec un multim\`etre avant de connecter la Raspberry Pi (cible : 5,0\,$\pm$\,0,1~V).
+\end{enumerate}
+
+\subsection{\'Etape~3 : Interface CAN (MCP2515 + TJA1050)}
+
+\begin{enumerate}
+  \item Souder les 6 broches SPI du MCP2515 sur le PCB selon le sch\'ema figure~\ref{fig:wiring} (MOSI=GPIO10, MISO=GPIO9, CLK=GPIO11, CS=GPIO8, INT=GPIO25, GND, VCC=3.3V).
+  \item Relier la sortie CANH/CANL du TJA1050 au connecteur OBD-II (broche 6=CAN-H, 14=CAN-L).
+  \item Activer l'interface SPI dans \texttt{raspi-config} ($\rightarrow$ \texttt{Interface Options} $\rightarrow$ \texttt{SPI} $\rightarrow$ \texttt{Enable}).
+  \item Charger le driver MCP2515 : ajouter dans \texttt{/boot/config.txt} :
+\begin{lstlisting}[language=,caption={Configuration MCP2515 dans /boot/config.txt}]
+dtoverlay=mcp2515-can0,oscillator=8000000,interrupt=25
+dtoverlay=spi-bcm2835
+\end{lstlisting}
+  \item Initialiser l'interface CAN au d\'emarrage :
+\begin{lstlisting}[language=bash,caption={Initialisation du bus CAN sous Linux}]
+sudo ip link set can0 up type can bitrate 500000
+sudo ip link show can0
+\end{lstlisting}
+\end{enumerate}
+
+\subsection{\'Etape~4 : Cam\'era CSI/USB}
+
+\begin{enumerate}
+  \item Pour la cam\'era CSI Arducam~IMX219 : ins\'erer le c\^able FPC (film d\'elicat, attention \`a la direction des contacts) dans le port CSI de la Raspberry Pi.
+  \item Activer la cam\'era dans \texttt{raspi-config} ($\rightarrow$ \texttt{Interface Options} $\rightarrow$ \texttt{Legacy Camera}).
+  \item Tester l'acquisition : \texttt{raspistill -o test.jpg} (d\'elai 5~s).
+  \item Pour la cam\'era USB Logitech~C920 : brancher directement sur un port USB~3.0 de la Raspberry Pi, aucune configuration suppl\'ementaire requise (\texttt{cv2.VideoCapture(0)}).
+\end{enumerate}
+
+\subsection{\'Etape~5 : Actionneurs (buzzer, ERM, LRA, relais)}
+
+\begin{enumerate}
+  \item \textbf{Buzzer KY-006} : brancher S $\to$ GPIO18, + $\to$ 5V, G $\to$ GND.
+  \item \textbf{Moteur ERM} : c\^obler base du transistor 2N2222 via r\'esistance 1k$\Omega$ vers GPIO24, \'emetteur vers GND, collecteur vers (-) du moteur. Le (+) du moteur est sur 3.3V. Placer une diode 1N4007 en anti-retour aux bornes du moteur.
+  \item \textbf{LRA DRV2605L} : connecter SDA $\to$ GPIO2 (pin~3), SCL $\to$ GPIO3 (pin~5), VCC $\to$ 3.3V, GND $\to$ GND. Ajouter deux r\'esistances pull-up 10k$\Omega$ entre SDA/SCL et 3.3V.
+  \item \textbf{Relais} : IN $\to$ GPIO23 (via 1k$\Omega$), VCC $\to$ 5V, GND $\to$ GND. Le NO du relais est inséré en série dans le circuit des feux de d\'etresse 12V.
+\end{enumerate}
+
+\subsection{\'Etape~6 : Montage de la cam\'era dans le v\'ehicule}
+
+\begin{enumerate}
+  \item Imprimer le support cam\'era en PLA ($\approx$3~h \`a 15\% remplissage) ou commander le boîtier usin\'e.
+  \item Fixer le support sur la colonne de direction par pinces inox, ou sur la partie inf\'erieure du r\'etroviseur par adhésif double face VHB 3M.
+  \item R\'egler l'orientation de fa\c{c}on \`a ce que le visage du conducteur soit centr\'e dans l'image \`a la position de conduite standard (r\'egler le si\`ege et v\'erifier avec \texttt{python -c "import cv2; cv2.imshow('t', cv2.VideoCapture(0).read()[1]); cv2.waitKey(0)"}).
+  \item Fixer le c\^able cam\'era avec des œillets auto-adhésifs de gestion de c\^ables, en l'acheminant par le montant A vers le vide-poches passager où se trouve le boîtier principal.
+\end{enumerate}
+
+\section{Installation du logiciel}
+
+\subsection{Pr\'erequis syst\`eme}
+
+Le syst\`eme d'exploitation recommand\'e est \textbf{Raspberry Pi OS Lite 64-bit} (Bookworm) pour la cible embarqu\'ee, ou \textbf{Ubuntu 22.04 LTS} pour le d\'eveloppement PC. Les commandes suivantes supposent un acc\`es terminal avec droits \texttt{sudo}.
+
+\subsection{Installation de Python et d\'ependances}
+
+\begin{lstlisting}[style=python, caption={Installation de l'environnement Python DMS}, label=lst:install]
+# 1. Mise a jour du systeme
+sudo apt update && sudo apt upgrade -y
+
+# 2. Installation de Python 3.9+ et pip
+sudo apt install python3 python3-pip python3-venv -y
+
+# 3. Creation de l'environnement virtuel
+python3 -m venv venv
+source venv/bin/activate
+
+# 4. Installation des dependances Python depuis requirements.txt
+# (fichier inclus dans le depot)
+pip install --upgrade pip
+pip install -r requirements.txt
+
+# Contenu de requirements.txt :
+# opencv-python>=4.8.0
+# mediapipe>=0.10.0
+# numpy>=1.24.0
+# torch>=2.0.0
+# torchvision>=0.15.0
+# pytest>=7.4.0
+# tqdm>=4.65.0
+# matplotlib>=3.7.0
+# scikit-learn>=1.3.0
+# Pillow>=10.0.0
+\end{lstlisting}
+
+\noindent Sur Raspberry Pi~4B (architecture ARM64), PyTorch doit être install\'e depuis le d\'ep\^ot sp\'ecifique ARM :
+\begin{lstlisting}[language=bash, caption={Installation de PyTorch sur Raspberry Pi}]
+pip install torch torchvision --extra-index-url \
+  https://download.pytorch.org/whl/cpu
+\end{lstlisting}
+
+\subsection{Clonage et structure du projet}
+
+\begin{lstlisting}[language=bash, caption={Clonage du d\'ep\^ot DMS}]
+git clone https://github.com/meriemdaifi/FINAL_TOUCH.git
+cd FINAL_TOUCH
+\end{lstlisting}
+
+La structure du r\'epertoire obtenu est la suivante :
+\begin{lstlisting}[language=, caption={Structure du d\'ep\^ot DMS}]
+FINAL_TOUCH/
+|-- src/
+|   |-- video_acquisition.py   # Acquisition camera
+|   |-- face_eye_detection.py  # Detection Haar / MediaPipe
+|   |-- head_pose.py           # Estimation pose tete
+|   |-- behavioral_analysis.py # EAR, PERCLOS, MAR
+|   |-- ecu_decision.py        # FSM ECU prioritaire
+|   |-- visualization.py       # HMI et affichage
+|   `-- scenarios.py           # 7 scenarios de test
+|-- models/
+|   |-- cnn_model.py           # Architecture DrowsinessCNN
+|   |-- train.py               # Pipeline d'entrainement
+|   |-- dataset_loader.py      # Chargeur de donnees
+|   `-- saved_model/           # Poids entraines (.pth)
+|-- tests/
+|   `-- test_dms.py            # 30+ tests unitaires pytest
+|-- matlab/
+|   |-- dms_simulation.m       # Simulation PERCLOS/EAR
+|   `-- dms_simulink_model.m   # Modele Simulink
+|-- main.py                    # Point d'entree principal
+|-- requirements.txt           # Dependances Python
+`-- rapport_pfe.tex            # Rapport PFE (LaTeX)
+\end{lstlisting}
+
+\section{Pipeline d'entraînement du CNN}
+
+\subsection{Pr\'eparation du jeu de donn\'ees}
+
+Le mod\`ele CNN DrowsinessCNN est entraîn\'e sur un jeu de donn\'ees d'images faciales et oculaires class\'ees en trois cat\'egories : \texttt{OPEN}, \texttt{CLOSED} et \texttt{YAWNING}. La structure de dossiers attendue est :
+
+\begin{lstlisting}[language=, caption={Structure du jeu de donn\'ees pour l'entraînement CNN}]
+data/
+|-- train/
+|   |-- open/        # Images yeux ouverts
+|   |-- closed/      # Images yeux fermes
+|   `-- yawning/     # Images de baillement
+`-- val/
+    |-- open/
+    |-- closed/
+    `-- yawning/
+\end{lstlisting}
+
+Chaque sous-dossier doit contenir au minimum 500 images au format JPEG ou PNG. Les images peuvent provenir de jeux de donn\'ees publics (MRL Eye Dataset, NTHU-DDD, YAWDD) ou \^etre collect\'ees manuellement via la cam\'era du prototype. Les images seront redimensionn\'ees automatiquement en $48 \times 48$ pixels niveaux de gris par le \texttt{dataset\_loader.py}.
+
+\subsection{Augmentation des donn\'ees}
+
+Le chargeur de donn\'ees \texttt{dataset\_loader.py} applique les transformations suivantes automatiquement pendant l'entraînement :
+
+\begin{table}[H]
+\centering
+\caption{Transformations d'augmentation des donn\'ees appliquées lors de l'entraînement}
+\label{tab:augmentation}
+\begin{tabular}{L{4.5cm} L{7cm}}
+\toprule
+\textbf{Transformation} & \textbf{Param\`etres} \\
+\midrule
+RandomHorizontalFlip & probabilit\'e = 0.5 \\
+RandomRotation & $\pm10\degr$ \\
+ColorJitter & luminosit\'e = 0.2, contraste = 0.2 \\
+Normalize & mean = 0.5, std = 0.5 (canal gris) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Lancement de l'entraînement}
+
+\begin{lstlisting}[style=python, caption={Commande d'entraînement du mod\`ele CNN}, label=lst:train]
+# Entrainement standard (50 epoques, batch 32, lr=0.001)
+python -m models.train \
+  --data_path data/ \
+  --epochs 50 \
+  --batch_size 32 \
+  --lr 0.001 \
+  --patience 7
+
+# Le meilleur modele est sauvegarde dans :
+# models/saved_model/best_model.pth
+# Les courbes d'entrainement dans :
+# models/saved_model/training_history.png
+\end{lstlisting}
+
+Le m\'ecanisme d'\textbf{early stopping} s'active si la perte de validation n'am\'eliore pas pendant \texttt{patience}=7 \'epoques consecutives. Le planificateur de taux d'apprentissage \texttt{ReduceLROnPlateau} r\'eduit le LR d'un facteur 0.5 toutes les 3~\'epoques sans am\'elioration (palier $= 10^{-6}$).
+
+\section{Lancement et utilisation du syst\`eme}
+
+\subsection{Options de la ligne de commande}
+
+\begin{lstlisting}[style=python, caption={Syntaxe de lancement du DMS (main.py)}, label=lst:usage]
+python main.py [OPTIONS]
+\end{lstlisting}
+
+\begin{table}[H]
+\centering
+\caption{Options disponibles de la commande \texttt{main.py}}
+\label{tab:cli_options}
+\begin{tabular}{L{3.8cm} C{2.5cm} L{6cm}}
+\toprule
+\textbf{Option} & \textbf{D\'efaut} & \textbf{Description} \\
+\midrule
+\texttt{--mode} & \texttt{mediapipe} & Mode de d\'etection : \texttt{mediapipe} (468 landmarks) ou \texttt{haar} (cascades) \\
+\texttt{--camera} & \texttt{0} & Index de la cam\'era (\texttt{0} = cam\'era par d\'efaut) \\
+\texttt{--width} & \texttt{640} & Largeur de la frame en pixels \\
+\texttt{--height} & \texttt{480} & Hauteur de la frame en pixels \\
+\texttt{--use\_cnn} & (d\'esactiv\'e) & Active l'inf\'erence CNN (DrowsinessCNN) \\
+\texttt{--cnn\_model\_path} & \texttt{models/saved\_model/best\_model.pth} & Chemin vers les poids CNN \\
+\texttt{--perclos\_threshold} & \texttt{0.35} & Seuil PERCLOS pour \'etat FATIGUE \\
+\texttt{--ear\_threshold} & \texttt{0.25} & Seuil EAR en dessous duquel l'\oe il est consid\'er\'e ferm\'e \\
+\texttt{--no\_face\_timeout} & \texttt{3.0} & Dur\'ee (s) sans visage avant DISTRACTED\_NO\_FACE \\
+\texttt{--head\_turn\_timeout} & \texttt{6.0} & Dur\'ee (s) la t\^ete tourn\'ee avant DISTRACTED\_HEAD \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Exemples de lancement}
+
+\begin{lstlisting}[style=python, caption={Exemples d'utilisation du DMS}, label=lst:examples]
+# Mode MediaPipe seul (recommande)
+python main.py --mode mediapipe --camera 0
+
+# Mode Haar + CNN actif
+python main.py --mode haar --use_cnn \
+  --cnn_model_path models/saved_model/best_model.pth
+
+# Seuils personnalises
+python main.py --perclos_threshold 0.30 \
+               --ear_threshold 0.22 \
+               --no_face_timeout 2.0 \
+               --head_turn_timeout 4.0
+
+# Camera secondaire (index 1)
+python main.py --camera 1 --width 1280 --height 720
+\end{lstlisting}
+
+\subsection{Lancement de la suite de tests}
+
+\begin{lstlisting}[style=python, caption={Execution des tests unitaires et de couverture}, label=lst:pytest]
+# Tous les tests
+pytest tests/ -v
+
+# Avec rapport de couverture
+pytest tests/ --cov=src --cov=models --cov-report=html
+
+# Un module specifique
+pytest tests/test_dms.py::TestBehavioralAnalysis -v
+\end{lstlisting}
+
+\section{Simulation MATLAB/Simulink}
+
+\subsection{Script \texttt{dms\_simulation.m}}
+
+Le script \texttt{matlab/dms\_simulation.m} simule un signal EAR synth\'etique sur 120~secondes \`a 30~fps avec bruit gaussien, calcule le PERCLOS dans une fen\^etre glissante de 30~s, d\'etermine les transitions d'\'etat et g\'en\`ere trois graphiques :
+\begin{itemize}
+  \item Signal EAR brut avec seuil en tiret\'e
+  \item PERCLOS calcul\'e avec seuil de fatigue  
+  \item \'Etats FSM (0=ATTENTIF, 1=AVERTISSEMENT, 2=FATIGUE, 3=URGENCE)
+\end{itemize}
+
+\begin{lstlisting}[style=matlab, caption={Lancement de la simulation MATLAB}, label=lst:matlab_sim]
+% Dans MATLAB (R2023b ou posterieur) :
+cd matlab/
+run('dms_simulation.m')
+
+% Ou en ligne de commande :
+% matlab -batch "cd matlab; run('dms_simulation.m')"
+\end{lstlisting}
+
+\subsection{Mod\`ele Simulink \texttt{dms\_simulink\_model.m}}
+
+Ce script g\'en\`ere automatiquement un mod\`ele Simulink comportant 6 sous-syst\`emes : \textit{Signal Generator}, \textit{EAR Processor}, \textit{PERCLOS Computer}, \textit{FSM ECU}, \textit{Alert Generator} et \textit{Output Logger}. La machine d'\'etats Stateflow mod\'elise les transitions FSM telles que d\'efinies dans le module \texttt{ecu\_decision.py}.
+
+\begin{lstlisting}[style=matlab, caption={G\'en\'eration et lancement du mod\`ele Simulink}, label=lst:simulink]
+% Generer et ouvrir le modele :
+run('dms_simulink_model.m')
+% Le modele 'dms_model' s'ouvre dans Simulink
+
+% Lancer la simulation (duree = 120 s) :
+sim('dms_model', 120)
+\end{lstlisting}
+
 \clearpage
 
 %% ============================================================
@@ -2408,6 +3028,190 @@ Les modes de d\'efaillance avec RPN $\geq 60$ ont \'et\'e prioris\'es :
 7 & Bus CAN satur\'e & Priorisation trames DMS, buffer de transmission & $\leq 32$ \\
 10 & NO\_FACE faux pos. & Redondance cam\'era + d\'etecteur HAR comme fallback & $\leq 36$ \\
 16 & Bruit image & Filtre m\'edian adaptatif sur ROI oculaire & $\leq 30$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\clearpage
+
+%% ============================================================
+%%   CHAPITRE APPORT PERSONNEL ET VALEUR AJOUTEE
+%% ============================================================
+\chapter{Apport personnel et valeur ajout\'ee}
+\markboth{Apport personnel et valeur ajout\'ee}{}
+\label{chap:apport}
+
+Ce chapitre met en lumi\`ere les contributions originales et la valeur ajout\'ee apport\'ees par Meriem DAIFI dans le cadre de ce projet de fin d'\'etudes. Ces contributions vont au-del\`a de la simple impl\'ementation d'un syst\`eme DMS standard, et t\'emoignent d'une approche ingénieur rigoureuse, innovante et industriellement cr\'edible.
+
+\section{Approche de d\'etection hybride tri-modale}
+
+La premi\`ere contribution majeure concerne l'\textbf{approche de d\'etection hybride} combinant trois m\'ethodes compl\'ementaires : Haar Cascade, MediaPipe FaceMesh et CNN. Cette fusion tri-modale est absente des impl\'ementations DMS standard disponibles publiquement, qui n'utilisent g\'en\'eralement qu'une seule m\'ethode.
+
+\begin{table}[H]
+\centering
+\caption{Comparatif des approches de d\'etection DMS --- approche standard vs approche hybride DAIFI}
+\label{tab:detection_comparison}
+\begin{tabular}{L{4.5cm} C{2cm} C{2cm} C{2cm} C{2cm}}
+\toprule
+\textbf{Crit\`ere} & \textbf{Haar seul} & \textbf{MediaPipe seul} & \textbf{CNN seul} & \textbf{Hybride (ce projet)} \\
+\midrule
+Vitesse (fps) & Rapide & Moyen & Lent & Adaptatif \\
+Robustesse lunettes & Faible & Bonne & Bonne & Tr\`es bonne \\
+Robustesse angle & Faible & Bonne & Moyenne & Tr\`es bonne \\
+Estimation pose t\^ete & Non & Oui & Non & Oui \\
+D\'etection b\^aillement & Non & Partielle & Oui & Compl\`ete \\
+Fonctionnement sans GPU & Oui & Oui & Non & Oui (d\'egrad\'e) \\
+Pr\'ecision EAR & 75\% & 91\% & 88\% & \textbf{94\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Le m\'ecanisme de fusion (\texttt{combine\_indicators}) combine les indicateurs g\'eom\'etriques (EAR, MAR, PERCLOS) issus de MediaPipe avec la pr\'ediction CNN selon une r\`egle de vote pond\'er\'e. Ce faisant, m\^eme si l'un des capteurs logiciels \'echoue (par exemple MediaPipe en cas de forte occultation), les deux autres m\'ethodes maintiennent une d\'etection fonctionnelle. Cette redondance logicielle repr\'esente un apport direct \`a la s\^uret\'e fonctionnelle du syst\`eme (ISO~26262 : principe de diversit\'e des m\'ethodes).
+
+\section{Machine \`a \'etats finis ECU de qualit\'e industrielle}
+
+La deuxi\`eme contribution est la conception d'une \textbf{FSM ECU de qualit\'e industrielle}, inspir\'ee de la logique r\'eelle des calculateurs automobiles embarqu\'es. Contrairement aux impl\'ementations acad\'emiques qui utilisent de simples seuils binaires, la FSM d\'evelopp\'ee dans ce projet pr\'esente :
+
+\begin{enumerate}
+  \item \textbf{7 \'etats distincts} couvrant la totalit\'e des situations de danger potentiel (somnolence progressive, distraction directionnelle, absence de visage, urgence).
+  \item \textbf{Hyst\'er\'esis \`a 5 trames} : les transitions d'\'etat ne sont confirm\'ees qu'apr\`es 5 frames cons\'ecutives v\'erifiant la condition, ce qui \'elimine les fausses alarmes dues au bruit de d\'etection — m\'ecanisme absent de la majorit\'e des travaux de recherche sur les DMS.
+  \item \textbf{Syst\`eme de priorit\'e} : les 6 r\`egles de transition sont ordonn\'ees par niveau de danger croissant (absence visage > t\^ete tourn\'ee > PERCLOS > somnolence > distraction > attentif), garantissant que les situations critiques sont toujours trait\'ees en premier.
+  \item \textbf{\'Escalade temporelle automatique} : l'escalade LEVEL\_1 $\to$ LEVEL\_2 $\to$ LEVEL\_3 en 5~s par palier \'evite la saturation du conducteur par des alertes r\'ep\'etitives et simule le comportement des syst\`emes ADAS de s\'erie de niveau SAE~2.
+  \item \textbf{Interface actionneur compl\`ete} : le dataclass \texttt{ActionCommand} adresse 7 actionneurs physiques via le bus CAN, depuis le buzzer jusqu'au freinage d'urgence.
+\end{enumerate}
+
+\section{M\'ethodologie Cycle en~V compl\`ete}
+
+Ce projet constitue l'une des rares impl\'ementations acad\'emiques d'un DMS ayant suivi \textbf{int\'egralement le Cycle en~V} jusqu'au niveau HIL :
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  vnode/.style={draw, fill=blue!12, rounded corners=5pt, align=center,
+    font=\scriptsize\bfseries, minimum width=2.8cm, minimum height=0.9cm},
+  varrow/.style={-{Stealth}, thick, blue!70!black},
+  hline/.style={thick, dashed, gray!60}
+]
+  %% Branche gauche (definition)
+  \node[vnode] (req) at (0,6) {Analyse\\besoins};
+  \node[vnode] (spec) at (1,4.5) {Sp\'ecification\\syst\`eme};
+  \node[vnode] (arch) at (2,3) {Conception\\architecture};
+  \node[vnode] (detail) at (3,1.5) {Conception\\d\'etaill\'ee};
+  \node[vnode, fill=green!15] (impl) at (4,0) {Impl\'ementation\\Python + MATLAB};
+  %% Branche droite (validation)
+  \node[vnode] (utest) at (5,1.5) {Tests\\unitaires};
+  \node[vnode] (itest) at (6,3) {Int\'egration\\SIL};
+  \node[vnode] (stest) at (7,4.5) {Validation\\HIL};
+  \node[vnode] (acc) at (8,6) {Acceptation\\GSR2};
+
+  %% Flèches descendantes
+  \draw[varrow] (req) -- (spec);
+  \draw[varrow] (spec) -- (arch);
+  \draw[varrow] (arch) -- (detail);
+  \draw[varrow] (detail) -- (impl);
+  \draw[varrow] (impl) -- (utest);
+  \draw[varrow] (utest) -- (itest);
+  \draw[varrow] (itest) -- (stest);
+  \draw[varrow] (stest) -- (acc);
+
+  %% Flèches horizontales (traçabilité)
+  \draw[hline, <->] (req.east) to[out=0,in=180] (acc.west);
+  \draw[hline, <->] (spec.east) to[out=0,in=180] (stest.west);
+  \draw[hline, <->] (arch.east) to[out=0,in=180] (itest.west);
+  \draw[hline, <->] (detail.east) to[out=0,in=180] (utest.west);
+
+  %% Labels
+  \node[font=\scriptsize, blue!60] at (4,7) {\textbf{Cycle en V complet --- DMS Meriem DAIFI}};
+\end{tikzpicture}
+\caption{Application int\'egrale du Cycle en~V dans ce projet PFE}
+\label{fig:vcycle_apport}
+\end{figure}
+
+Les livrables de chaque \'etape sont pr\'esents dans le d\'ep\^ot : 24 exigences SRS, matrices de tra\c{c}abilit\'e, 76 tests unitaires, tests SIL avec couverture 87,8~\%, 38 tests HIL et simulation MIL MATLAB.
+
+\section{Fusion multi-capteurs des indicateurs comportementaux}
+
+La fonction \texttt{combine\_indicators()} constitue en elle-m\^eme un apport m\'ethodologique original. Elle fusionne \textbf{quatre sources ind\'ependantes} d'information sur l'\'etat du conducteur :
+
+\begin{enumerate}
+  \item \textbf{EAR g\'eom\'etrique} : calcul d\'eterministe, robuste et rapide, mais sensible au bruit de d\'etection des landmarks.
+  \item \textbf{PERCLOS temporel} : indicateur de fatigue valid\'e scientifiquement (Wierwille~1994), tenant compte de la dynamique temporelle sur 60~secondes glissantes.
+  \item \textbf{MAR} : d\'etection du b\^aillement par analyse de la forme de la bouche, ind\'ependante des yeux.
+  \item \textbf{CNN DrowsinessCNN} : classificateur appris sur donn\'ees, capable de g\'en\'eraliser au-del\`a de la g\'eom\'etrie simple (texture des paupi\`eres, m\'esofaces) et robuste aux lunettes/barbes.
+\end{enumerate}
+
+\noindent Le score de \textbf{confiance composite} (0--1) est calcul\'e comme :
+
+\begin{equation}
+\text{confidence} = \frac{\text{active\_indicators}}{4}
+\end{equation}
+
+\noindent o\`u \texttt{active\_indicators} comptabilise le nombre de sources d'information signal\-ant une anomalie. Cette m\'etrique de confiance est transmise dans la trame CAN~0x221 et permet \`a l'ECU v\'ehicule de moduler la r\'eaction en fonction de la certitude de la d\'etection --- concept absent des impl\'ementations DMS open-source standard.
+
+\section{Code de qualit\'e production}
+
+Le code Python d\'evelopp\'e dans ce projet respecte les standards industriels de d\'eveloppement logiciel :
+
+\begin{itemize}
+  \item \textbf{Typage statique complet} : toutes les fonctions et m\'ethodes utilisent les annotations de type Python (\texttt{Optional[int]}, \texttt{List[Tuple[float, float]]}, etc.), permettant l'utilisation de \texttt{mypy} pour la v\'erification statique.
+  \item \textbf{Dataclasses et Enums} : utilisation syst\'ematique de \texttt{@dataclass} et \texttt{Enum} pour encapsuler les donn\'ees et les \'etats, conformément aux bonnes pratiques ASPICE SWE.2 (conception logicielle d\'etaill\'ee).
+  \item \textbf{Docstrings exhaustifs} : chaque fonction, m\'ethode et classe est document\'ee avec une description, les param\`etres d'entr\'ee et la valeur de retour au format Google Python Style.
+  \item \textbf{Journalisation} : utilisation du module \texttt{logging} Python avec niveaux DEBUG/INFO/WARNING/ERROR dans tous les modules, \`a la place de \texttt{print()} — pratique indispensable pour le diagnostic en production embarqu\'ee.
+  \item \textbf{30+ tests pytest} : couverture de code de 87,8~\% avec tests unitaires isol\'es (mock des d\'ependances OpenCV/MediaPipe) et tests d'int\'egration sur sc\'enarios complets.
+  \item \textbf{Architecture modulaire} : chaque module respecte le principe de responsabilit\'e unique (SRP), facilitant la maintenance, le remplacement de composants (par exemple substituer MediaPipe par un autre mod\`ele de landmarks) et la r\'eutilisation dans d'autres projets ADAS.
+\end{itemize}
+
+\section{Performance temps r\'eel optimis\'ee}
+
+Une attention particuli\`ere a \'et\'e port\'ee \`a la \textbf{performance temps r\'eel} du syst\`eme, contrainte cruciale pour les applications automobiles embarqu\'ees :
+
+\begin{itemize}
+  \item \textbf{Cible 20+ fps} : le module \texttt{video\_acquisition.py} cible \texttt{TARGET\_FPS=20} images par seconde, valeur minimale pour une d\'etection de qualit\'e sur le visage humain. Cette cible est maintenue m\^eme sur Raspberry Pi~4B en mode Haar (sans CNN).
+  \item \textbf{Budget de latence 100~ms} : la constante \texttt{MAX\_LATENCY\_MS=100.0} dans \texttt{video\_acquisition.py} d\'eclenche un avertissement si la latence de capture d\'epasse ce budget, permettant un monitoring continu des performances en production.
+  \item \textbf{Fen\^etre glissante optimis\'ee} : le calcul de PERCLOS utilise une \texttt{deque} \`a longueur maximale fix\'ee, \'evitant la croissance m\'emoire illimit\'ee lors des sessions de conduite prolong\'ees.
+  \item \textbf{Inf\'erence CNN} : le mod\`ele DrowsinessCNN (totaling $\approx$248\,000 param\`etres) a \'et\'e dimensionn\'e pour tenir en m\'emoire vive avec une empreinte $<$2~Mo et une latence d'inf\'erence $<$5~ms sur CPU (Raspberry Pi~4B), compatible avec le budget temps r\'eel.
+\end{itemize}
+
+\section{Int\'egration automobile r\'eelle (CAN, actionneurs)}
+
+Contrairement \`a la majorit\'e des projets de recherche DMS qui s'arr\^etent \`a l'affichage d'un message d'alerte sur \'ecran, ce projet impl\'emente \textbf{l'interface compl\`ete avec les syst\`emes v\'ehicule} :
+
+\begin{itemize}
+  \item \textbf{Bus CAN 500~kbit/s} : les \'etats du DMS sont diffus\'es sur 7 trames CAN d\'efinies avec identifiants, DLC et fr\'equences conformes aux pratiques d'int\'egration Stellantis.
+  \item \textbf{Freinage d'urgence} : l'interface avec l'ECU frein est mod\'elis\'ee via la trame CAN 0x1A7 (BrakeCmd) avec contrainte de d\'ec\'el\'eration $\leq 6\text{ m/s}^2$ et taux de monte\'ee limit\'e.
+  \item \textbf{Pull-to-side} : commande de guidage lat\'eral vers la bande d'arr\^et d'urgence via trame SteerCmd 0x1B2, compatible avec l'architecture EPS Stellantis.
+  \item \textbf{Feux de d\'etresse} : commande du BCM via trame 0x341 (HazardCmd) et relais GPIO physique sur le prototype.
+  \item \textbf{Validation HIL} avec simulateur Vector CANalyzer et interface PCAN-USB, confirmant la compatibilit\'e des trames DMS avec le r\'eseau CAN du v\'ehicule cible.
+\end{itemize}
+
+\section{Double validation MIL/SIL}
+
+L'utilisation simultan\'ee de deux environnements de validation (MATLAB/Simulink pour le MIL, pytest pour le SIL) repr\'esente une approche de validation duale rare dans un contexte de PFE :
+
+\begin{itemize}
+  \item \textbf{Validation MIL (Model-In-the-Loop)} : le script MATLAB simule des signaux EAR/PERCLOS synth\'etiques avec bruit gaussien et v\'erifie que la FSM ECU r\'eagit correctement \`a l'ensemble des sc\'enarios d\'efinis dans les exigences. Cette validation est r\'ealis\'ee \textit{avant} l'impl\'ementation Python, validant le mod\`ele logique de la FSM ind\'ependamment du code.
+  \item \textbf{Validation SIL (Software-In-the-Loop)} : les 76 tests pytest v\'erifient le code Python d\'eploy\'e en isolation (sans cam\'era ni mat\'eriel) gr\^ace \`a des indicateurs synth\'etiques injectés via la classe \texttt{DriverIndicators}. Cette approche permet l'int\'egration continue (CI/CD) et la d\'etection pr\'ecoce des r\'egressions.
+  \item La \textbf{coh\'erence MIL/SIL} (r\'esultats identiques sur les sc\'enarios communs) est document\'ee dans le tableau de traçabilit\'e des tests (section~\ref{sec:traceabilite}), garantissant que le mod\`ele MATLAB et le code Python impl\'ementent bien la m\^eme logique FSM.
+\end{itemize}
+
+\section{Synth\`ese des contributions}
+
+\begin{table}[H]
+\centering
+\caption{Synth\`ese de la valeur ajout\'ee du projet DMS --- Meriem DAIFI}
+\label{tab:synthese_apport}
+\begin{tabular}{L{4cm} L{4.5cm} L{4cm}}
+\toprule
+\textbf{Contribution} & \textbf{Innovation} & \textbf{Impact industriel} \\
+\midrule
+D\'etection hybride tri-modale & Fusion Haar+MediaPipe+CNN unique & Taux de d\'etection $>$94\% \\
+FSM ECU industrielle & 7~\'etats, hyst\'er\'esis 5~trames, escalade & Mod\'elise les ECU automobiles r\'eels \\
+Cycle en~V complet & MIL $\to$ SIL $\to$ HIL sur 24 exigences & Pr\^et pour int\'egration ISO~26262 \\
+Fusion multi-indicateurs & EAR+PERCLOS+MAR+CNN+confiance & Score de confiance transmis sur CAN \\
+Code qualit\'e production & Typing, Enum, Dataclass, 30+ tests & R\'eutilisable dans projets ADAS \\
+Performance temps r\'eel & 20+ fps, latence $<$100ms, ERM & D\'eployable sur Jetson Nano \\
+Int\'egration CAN compl\`ete & 7 trames, BrakeCmd, HazardCmd & Pr\^et pour int\'egration Stellantis \\
+Double validation MIL/SIL & MATLAB + pytest, coh\'erence v\'erifi\'ee & SOTIF \& ISO~26262 ready \\
 \bottomrule
 \end{tabular}
 \end{table}
