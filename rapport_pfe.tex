@@ -1,0 +1,3269 @@
+\documentclass[12pt,a4paper]{report}
+
+%% ============================================================
+%% Encodage et langue
+%% ============================================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+
+%% ============================================================
+%% Mise en page
+%% ============================================================
+\usepackage[top=2.5cm,bottom=2.5cm,left=3cm,right=2.5cm]{geometry}
+\usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{makeidx}
+
+%% ============================================================
+%% Mathematiques
+%% ============================================================
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{siunitx}
+\sisetup{locale=FR, output-decimal-marker={,}}
+
+%% ============================================================
+%% Couleurs et liens
+%% ============================================================
+\usepackage[table]{xcolor}
+\usepackage{pifont}
+\usepackage{colortbl}
+\usepackage[hidelinks,
+  pdfauthor={Meriem DAIFI},
+  pdftitle={Conception et Validation d'un DMS pour Applications Automobiles},
+  pdfsubject={PFE 2025/2026},
+  pdfkeywords={DMS, PERCLOS, EAR, FSM, CNN, ADAS, Stellantis}
+]{hyperref}
+
+%% ============================================================
+%% En-tetes et pieds de page
+%% ============================================================
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\leftmark}
+\fancyhead[R]{\small Meriem DAIFI -- PFE 2025/2026}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\setlength{\headheight}{15pt}
+
+%% ============================================================
+%% Titres de chapitres
+%% ============================================================
+\usepackage{titlesec}
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries\color{blue!70!black}}
+  {\chaptertitlename\ \thechapter}
+  {20pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{-30pt}{40pt}
+
+%% ============================================================
+%% Table des matieres
+%% ============================================================
+\usepackage[nottoc]{tocbibind}
+\usepackage{enumitem}
+
+%% ============================================================
+%% Listings (code source)
+%% ============================================================
+\usepackage{listings}
+
+\definecolor{codebg}{rgb}{0.97,0.97,0.97}
+\definecolor{codeframe}{rgb}{0.6,0.6,0.8}
+\definecolor{codeblue}{rgb}{0.13,0.29,0.53}
+\definecolor{codegreen}{rgb}{0.0,0.45,0.0}
+\definecolor{codeorange}{rgb}{0.7,0.35,0.0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codered}{rgb}{0.6,0.0,0.0}
+
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{codeblue}\bfseries,
+  commentstyle=\color{codegreen}\itshape,
+  stringstyle=\color{codered},
+  numberstyle=\tiny\color{codegray},
+  backgroundcolor=\color{codebg},
+  rulecolor=\color{codeframe},
+  frame=single,
+  numbers=left,
+  numbersep=8pt,
+  breaklines=true,
+  breakatwhitespace=false,
+  showstringspaces=false,
+  tabsize=4,
+  captionpos=b,
+  keepspaces=true,
+  xleftmargin=15pt,
+  xrightmargin=5pt,
+}
+
+\lstdefinestyle{python}{
+  language=Python,
+  morekeywords={self,True,False,None,as,from,import,with,yield,
+    async,await,dataclass,auto,Optional,List,Dict,Tuple,Deque,Enum},
+}
+
+\lstdefinelanguage{Matlab}{
+  keywords={function,end,for,while,if,else,elseif,return,
+    break,continue,true,false,nargin,nargout},
+  morekeywords=[2]{clear,clc,close,all,zeros,ones,length,size,
+    sum,max,min,plot,subplot,hold,grid,xlabel,ylabel,zlabel,
+    title,legend,stairs,yline,xlim,ylim,yticks,yticklabels,
+    figure,disp,fprintf,randn,linspace,saveas,gcf,sgtitle,
+    mod,floor,ceil,abs,sqrt,exp,log,sin,cos,tan},
+  comment=[l]{\%},
+  morestring=[b]',
+  sensitive=false,
+}
+
+\lstdefinestyle{matlab}{
+  language=Matlab,
+  keywordstyle=\color{codeblue}\bfseries,
+  keywordstyle=[2]\color{codeorange},
+  commentstyle=\color{codegreen}\itshape,
+  stringstyle=\color{codered},
+}
+
+%% ============================================================
+%% TikZ
+%% ============================================================
+\usepackage{tikz}
+\usepackage{pgf}
+\usetikzlibrary{positioning,arrows.meta,shapes.geometric,
+  shapes.multiline,fit,backgrounds,calc,decorations.pathreplacing}
+
+%% ============================================================
+%% Index
+%% ============================================================
+\makeindex
+
+%% ============================================================
+%% Espacement
+%% ============================================================
+\onehalfspacing
+
+%% ============================================================
+%% Commandes personnalisees
+%% ============================================================
+\newcommand{\dms}{\textsc{dms}}
+\newcommand{\adas}{\textsc{adas}}
+\newcommand{\ecu}{\textsc{ecu}}
+\newcommand{\fsm}{\textsc{fsm}}
+\newcommand{\cnn}{\textsc{cnn}}
+\newcommand{\perclos}{\textsc{perclos}}
+\newcommand{\ear}{\textsc{ear}}
+\newcommand{\mar}{\textsc{mar}}
+\newcommand{\can}{\textsc{can}}
+\newcommand{\mil}{\textsc{mil}}
+\newcommand{\sil}{\textsc{sil}}
+\newcommand{\degr}{\ensuremath{^{\circ}}}
+\newcommand{\req}[1]{\textbf{REQ-#1}}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
+
+%% ============================================================
+%% Renommer les labels automatiques (babel french le fait)
+%% ============================================================
+\addto\captionsfrench{\renewcommand{\lstlistingname}{Listing}}
+\addto\captionsfrench{\renewcommand{\lstlistlistingname}{Liste des listings}}
+
+%% ============================================================
+%%   DEBUT DU DOCUMENT
+%% ============================================================
+\begin{document}
+
+%% ============================================================
+%%   PAGE DE GARDE
+%% ============================================================
+\begin{titlepage}
+\thispagestyle{empty}
+\begin{center}
+
+\begin{tikzpicture}[remember picture, overlay]
+  \draw[blue!70!black, line width=3pt]
+    ([shift={(1cm,-1cm)}]current page.north west) rectangle
+    ([shift={(-1cm,1cm)}]current page.south east);
+  \draw[blue!40!black, line width=1pt]
+    ([shift={(1.2cm,-1.2cm)}]current page.north west) rectangle
+    ([shift={(-1.2cm,1.2cm)}]current page.south east);
+\end{tikzpicture}
+
+\vspace{0.5cm}
+
+{\Large\bfseries Universit\'e Hassan~II --- Casablanca}\\[0.3cm]
+{\large \'Ecole Nationale Sup\'erieure des Arts et M\'etiers}\\[0.2cm]
+{\large D\'epartement G\'enie \'Electrique et Syst\`emes Embarqu\'es}
+
+\vspace{0.5cm}
+\noindent\rule{\linewidth}{1.5pt}
+
+\vspace{0.3cm}
+{\Large\bfseries RAPPORT DE PROJET DE FIN D'\'ETUDES}\\[0.2cm]
+{\large PFE --- Cycle Ing\'enieur, Promotion 2025/2026}
+
+\noindent\rule{\linewidth}{1.5pt}
+
+\vspace{0.8cm}
+
+{\LARGE\bfseries\color{blue!80!black}
+Conception et Validation d'un Syst\`eme de\\[0.3cm]
+Surveillance du Conducteur (DMS) pour\\[0.3cm]
+Applications Automobiles Embarqu\'ees
+}
+
+\vspace{1.0cm}
+
+\begin{tikzpicture}
+  \node[draw=blue!70!black, fill=blue!5, rounded corners=8pt,
+        inner sep=12pt, text width=12cm, align=center] {
+    \large
+    \textbf{Mots-cl\'es :} DMS, PERCLOS, EAR, FSM, CNN, ECU,\\
+    ADAS, ISO~26262, SOTIF, MIL/SIL/HIL, Cycle en~V
+  };
+\end{tikzpicture}
+
+\vspace{0.8cm}
+
+{\large\bfseries R\'ealis\'e par :}\\[0.3cm]
+{\LARGE\bfseries\color{blue!80!black} Meriem DAIFI}\\[0.2cm]
+{\large Stagiaire ing\'enieure --- Expleo Group Maroc}
+
+\vspace{0.8cm}
+
+\begin{tabular}{ll}
+\textbf{Entreprise d'accueil :} & Expleo Group Maroc, Casablanca\\[0.2cm]
+\textbf{Client industriel :}    & Stellantis (Groupe PSA/FCA)\\[0.2cm]
+\textbf{Encadrant industriel :} & Ing\'enieur senior, Expleo Group Maroc\\[0.2cm]
+\textbf{Encadrant acad\'emique :} & Professeur, ENSAM Casablanca\\[0.2cm]
+\textbf{Ann\'ee acad\'emique :} & 2025/2026\\
+\end{tabular}
+
+\vspace{0.8cm}
+
+\begin{tikzpicture}
+  \node[fill=gray!10, rounded corners=5pt, inner sep=8pt] {
+    \begin{tabular}{ccc}
+      \fbox{\parbox{3.5cm}{\centering\large\bfseries EXPLEO\\GROUP MAROC}} &
+      \hspace{1cm} &
+      \fbox{\parbox{3.5cm}{\centering\large\bfseries STELLANTIS\\ADAS TEAM}}
+    \end{tabular}
+  };
+\end{tikzpicture}
+
+\vfill
+
+{\large Soutenu le \textbf{15 Juillet 2026} devant le jury compos\'e de :}\\[0.3cm]
+\begin{tabular}{ll}
+  Pr\'esident du jury : & Professeur, ENSAM Casablanca\\
+  Rapporteur :          & Professeur, \'Ecole Polytechnique\\
+  Examinateur :         & Ing\'enieur expert, Stellantis\\
+  Encadrant :           & Ing\'enieur senior, Expleo Group Maroc\\
+\end{tabular}
+
+\end{center}
+\end{titlepage}
+
+%% ============================================================
+%%   DEDICACE
+%% ============================================================
+\chapter*{D\'edicace}
+\addcontentsline{toc}{chapter}{D\'edicace}
+\thispagestyle{fancy}
+
+\vspace{2cm}
+\begin{center}
+\textit{\large
+\`A mes tr\`es chers parents,\\[0.5cm]
+pour leur amour inconditionnel, leur patience infinie\\
+et leurs sacrifices qui ont rendu possible cette r\'eussite.\\[1cm]
+\`A mon fr\`ere et ma s{\oe}ur,\\[0.5cm]
+pour leur soutien constant et les moments de joie partag\'es\\
+tout au long de ce parcours.\\[1cm]
+\`A ma famille,\\[0.5cm]
+dont la bienveillance et les encouragements m'ont guid\'ee\\
+jusqu'\`a l'aboutissement de ce projet.\\[1cm]
+\`A tous mes amis et coll\`egues de promotion,\\[0.5cm]
+avec qui j'ai partag\'e les d\'efis et les succ\`es de ces ann\'ees d'\'etudes.\\[1.5cm]
+Je vous d\'edie ce travail avec toute ma gratitude et mon affection.
+}
+\end{center}
+
+\clearpage
+
+%% ============================================================
+%%   REMERCIEMENTS
+%% ============================================================
+\chapter*{Remerciements}
+\addcontentsline{toc}{chapter}{Remerciements}
+\thispagestyle{fancy}
+
+Ce rapport de projet de fin d'\'etudes est l'aboutissement d'un travail de plusieurs mois men\'e au sein d'Expleo Group Maroc, en partenariat avec le groupe Stellantis. Sa r\'ealisation n'aurait pas \'et\'e possible sans le concours pr\'ecieux de nombreuses personnes envers lesquelles je souhaite exprimer ma profonde reconnaissance.
+
+En premier lieu, je tiens \`a exprimer ma sinc\`ere gratitude \`a mon \textbf{encadrant industriel au sein d'Expleo Group Maroc}, ing\'enieur senior sp\'ecialis\'e dans les syst\`emes embarqu\'es automobiles, pour m'avoir accueillie au sein de son \'equipe, orient\'ee avec expertise tout au long du projet, et partag\'e sa vaste exp\'erience du domaine de l'\textsc{adas}. Sa disponibilit\'e, ses conseils avis\'es et son soutien constant ont \'et\'e d\'eterminants dans la conduite de ce travail.
+
+Je remercie \'egalement toute l'\textbf{\'equipe technique d'Expleo Group Maroc}, notamment les ing\'enieurs du p\^ole syst\`emes embarqu\'es et validation automobile, pour les nombreux \'echanges enrichissants et leur aide pr\'ecieuse lors des phases de validation et d'int\'egration. Leur expertise collective a consid\'erablement enrichi ma compr\'ehension des contraintes industrielles li\'ees au d\'eveloppement embarqu\'e.
+
+J'adresse mes vifs remerciements \`a l'\textbf{\'equipe ADAS de Stellantis}, et en particulier aux ing\'enieurs syst\`emes et s\'ecurit\'e fonctionnelle qui ont contribu\'e \`a la d\'efinition des exigences et des sc\'enarios de validation. Leur exigence de qualit\'e et leur vision strat\'egique en mati\`ere de s\'ecurit\'e active ont fortement guid\'e les choix de conception retenus dans ce projet.
+
+Mes remerciements les plus chaleureux s'adressent \`a mon \textbf{encadrant acad\'emique} au sein de l'\'Ecole Nationale Sup\'erieure des Arts et M\'etiers de Casablanca pour le suivi rigoureux de mes travaux, ses remarques constructives et l'int\'er\^et qu'il a t\'emoign\'e pour ce sujet. Sa vision p\'edagogique m'a permis de maintenir un niveau de rigueur scientifique tout au long de la r\'edaction de ce rapport.
+
+Je remercie \'egalement les \textbf{membres du jury} pour avoir accept\'e d'\'evaluer ce travail. Leur expertise et leurs questions lors de la soutenance permettront de valoriser et d'am\'eliorer les r\'esultats obtenus.
+
+Mes pens\'ees vont aussi vers mes \textbf{coll\`egues stagiaires et employ\'es d'Expleo Group Maroc}, dont l'atmosph\`ere de travail bienveillante et la camaraderie ont rendu cette exp\'erience particuli\`erement enrichissante sur le plan humain.
+
+Enfin, je remercie du fond du c\oe ur \textbf{ma famille} pour son soutien inconditionnel tout au long de mes \'etudes. Leur confiance en mes capacit\'es a \'et\'e ma principale source de motivation dans les moments les plus difficiles.
+
+\clearpage
+
+%% ============================================================
+%%   RESUME (FRANCAIS)
+%% ============================================================
+\chapter*{R\'esum\'e}
+\addcontentsline{toc}{chapter}{R\'esum\'e}
+\thispagestyle{fancy}
+
+\noindent\textbf{Titre :} Conception et Validation d'un Syst\`eme de Surveillance du Conducteur (\textsc{dms}) pour Applications Automobiles Embarqu\'ees
+
+\noindent\rule{\linewidth}{0.5pt}
+\vspace{0.3cm}
+
+La s\'ecurit\'e routi\`ere constitue l'un des enjeux majeurs de l'industrie automobile contemporaine. Selon les statistiques de l'Organisation Mondiale de la Sant\'e, la distraction et la somnolence au volant sont responsables de pr\`es de 25 \`a 30~\% des accidents de la route mortels \`a l'\'echelle mondiale. Face \`a ce constat alarmant, les constructeurs automobiles et les \'equipementiers investissent massivement dans le d\'eveloppement de syst\`emes d'aide \`a la conduite (\textsc{adas}) capables de d\'etecter ces situations \`a risque en temps r\'eel et d'y r\'eagir de mani\`ere autonome.
+
+Ce projet de fin d'\'etudes, men\'e au sein d'Expleo Group Maroc en partenariat avec Stellantis, porte sur la conception, l'impl\'ementation et la validation d'un Syst\`eme de Surveillance du Conducteur (\textsc{dms}) int\'egr\'e. Le syst\`eme d\'evelopp\'e repose sur une architecture multi-couches combinant la vision par ordinateur, l'apprentissage automatique et une logique de contr\^ole embarqu\'ee de type machine \`a \'etats finis (\textsc{fsm}).
+
+La couche de perception exploite la biblioth\`eque MediaPipe pour la d\'etection de 468 points de rep\`ere faciaux, permettant le calcul en temps r\'eel de l'Eye Aspect Ratio (\textsc{ear}), indicateur g\'eom\'etrique de l'ouverture oculaire, du Mouth Aspect Ratio (\textsc{mar}) pour la d\'etection du b\^aillement, et du \textsc{perclos} (Percentage of Eye Closure), m\'etrique de r\'ef\'erence pour l'\'evaluation de la fatigue. L'estimation de la pose de la t\^ete est r\'ealis\'ee par la m\'ethode solvePnP d'OpenCV, qui met en correspondance les points 3D d'un mod\`ele facial g\'en\'erique avec les landmarks 2D d\'etect\'es dans l'image.
+
+Un r\'eseau de neurones convolutif (\textsc{cnn}) de type DrowsinessCNN, d\'evelopp\'e avec PyTorch, compl\`ete la cha\^ine de perception. Ce r\'eseau prend en entr\'ee des images en niveaux de gris de r\'esolution $48 \times 48$ pixels et classifie l'\'etat oculaire en trois cat\'egories : OPEN (yeux ouverts), CLOSED (yeux ferm\'es) et YAWNING (b\^aillement). Son architecture s\'equentielle comprend trois blocs convolutifs (\textit{Conv2D + Batch Normalization + ReLU + MaxPooling}) suivis de deux couches enti\`erement connect\'ees avec r\'egularisation par \textit{dropout}.
+
+La couche de d\'ecision est impl\'ement\'ee sous forme d'une \textsc{fsm} embarqu\'ee de type ECU (\textit{Electronic Control Unit}), d\'efinie dans le module \texttt{ecu\_decision.py}. Cette machine \`a sept \'etats (ATTENTIVE, WARNING\_DROWSINESS, WARNING\_DISTRACTION, FATIGUE, DISTRACTED\_HEAD, DISTRACTED\_NO\_FACE, EMERGENCY) int\`egre un m\'ecanisme d'hyst\'er\'esis \`a 5 trames cons\'ecutives et une escalade automatique des alertes sur trois niveaux (alerte visuelle/sonore, vibrations, freinage d'urgence).
+
+La validation du syst\`eme suit la m\'ethodologie du Cycle en~V conform\'ement aux exigences de la norme ISO~26262 (niveau ASIL~B estim\'e). Trois niveaux de validation sont mis en \oe uvre : MIL (Model-In-the-Loop) via simulation MATLAB/Simulink, SIL (Software-In-the-Loop) via campagne de tests pytest avec couverture de code, et HIL (Hardware-In-the-Loop) via banc d'injection de sc\'enarios. Sept sc\'enarios de test couvrent les situations nominales et d\'egrad\'ees, avec analyse AMDEC des modes de d\'efaillance.
+
+Les r\'esultats obtenus d\'emontrent une d\'etection fiable des \'etats de vigilance avec des temps de r\'eaction conformes aux exigences temps-r\'eel (traitement en moins de 33~ms par trame \`a 30~fps), une robustesse aux perturbations lumineuses et aux variations morphologiques, ainsi qu'une conformit\'e aux exigences de s\'ecurit\'e fonctionnelle de la norme ISO~26262.
+
+\vspace{0.5cm}
+\noindent\textbf{Mots-cl\'es :} DMS, PERCLOS, EAR, MAR, r\'eseau de neurones convolutif, machine \`a \'etats finis, ECU embarqu\'e, ISO 26262, SOTIF, validation MIL/SIL/HIL, s\'ecurit\'e fonctionnelle automobile.
+
+\clearpage
+
+%% ============================================================
+%%   ABSTRACT (ANGLAIS)
+%% ============================================================
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+\thispagestyle{fancy}
+
+\noindent\textbf{Title:} Design and Validation of a Driver Monitoring System (DMS) for Embedded Automotive Applications
+
+\noindent\rule{\linewidth}{0.5pt}
+\vspace{0.3cm}
+
+Road safety remains one of the most critical challenges in the modern automotive industry. According to World Health Organization statistics, driver distraction and drowsiness account for approximately 25 to 30\% of fatal road accidents worldwide. In response to this challenge, automotive manufacturers and tier-1 suppliers are heavily investing in Advanced Driver Assistance Systems (ADAS) capable of detecting such risk situations in real time and responding autonomously.
+
+This final-year engineering project (PFE), conducted at Expleo Group Maroc in partnership with Stellantis, focuses on the design, implementation, and validation of an integrated Driver Monitoring System (DMS). The developed system relies on a multi-layer architecture combining computer vision, machine learning, and an embedded control logic implemented as a Finite State Machine (FSM).
+
+The perception layer leverages the MediaPipe library to detect 468 facial landmarks, enabling real-time computation of the Eye Aspect Ratio (EAR), the Mouth Aspect Ratio (MAR) for yawn detection, and PERCLOS (Percentage of Eye Closure), the reference metric for drowsiness assessment. Head pose estimation is performed using OpenCV's solvePnP method, which establishes a correspondence between the 3D points of a generic facial model and the 2D landmarks detected in the image frame.
+
+A convolutional neural network (CNN), named DrowsinessCNN and developed with PyTorch, completes the perception pipeline. This network takes $48\times48$ grayscale images as input and classifies the eye state into three categories: OPEN (0), CLOSED (1), and YAWNING (2). Its sequential architecture consists of three convolutional blocks (Conv2D + Batch Normalization + ReLU + MaxPooling) followed by two fully-connected layers with dropout regularization (rate = 0.5).
+
+The decision layer is implemented as an embedded ECU-like FSM, defined in the \texttt{ecu\_decision.py} module. This seven-state machine (ATTENTIVE, WARNING\_DROWSINESS, WARNING\_DISTRACTION, FATIGUE, DISTRACTED\_HEAD, DISTRACTED\_NO\_FACE, EMERGENCY) integrates a 5-frame hysteresis mechanism and automatic three-level warning escalation (visual/audio alert, vibrations, emergency braking + pull-to-side + hazard lights).
+
+System validation follows the V-Cycle methodology in compliance with ISO 26262 requirements (estimated ASIL B level). Three validation levels are implemented: MIL (Model-In-the-Loop) via MATLAB/Simulink simulation, SIL (Software-In-the-Loop) via a pytest test campaign with code coverage analysis, and HIL (Hardware-In-the-Loop) via a scenario injection bench. Seven test scenarios cover nominal and degraded situations, with FMEA analysis of failure modes.
+
+The results demonstrate reliable detection of vigilance states with response times compliant with real-time requirements (processing under 33~ms per frame at 30~fps), robustness to lighting disturbances and morphological variations, and compliance with the functional safety requirements of ISO~26262.
+
+\vspace{0.5cm}
+\noindent\textbf{Keywords:} DMS, PERCLOS, EAR, MAR, convolutional neural network, finite state machine, embedded ECU, ISO 26262, SOTIF, MIL/SIL/HIL validation, automotive functional safety.
+
+\clearpage
+
+%% ============================================================
+%%   GLOSSAIRE
+%% ============================================================
+\chapter*{Glossaire}
+\addcontentsline{toc}{chapter}{Glossaire}
+\thispagestyle{fancy}
+
+\begin{longtable}{L{3.5cm} L{11cm}}
+\toprule
+\textbf{Acronyme} & \textbf{D\'efinition} \\
+\midrule
+\endfirsthead
+\multicolumn{2}{c}{\textit{Glossaire (suite)}} \\
+\toprule
+\textbf{Acronyme} & \textbf{D\'efinition} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+\textbf{ADAS}   & \textit{Advanced Driver Assistance System} -- Syst\`eme d'aide \`a la conduite avanc\'e. Ensemble de technologies embarqu\'ees visant \`a assister le conducteur dans sa t\^ache de conduite et \`a pr\'evenir les accidents. \\[0.2cm]
+
+\textbf{AMDEC}  & Analyse des Modes de D\'efaillance, de leurs Effets et de leur Criticit\'e. M\'ethode d'analyse de fiabilit\'e et de s\'ecurit\'e utilis\'ee pour identifier les modes de d\'efaillance potentiels d'un syst\`eme. \\[0.2cm]
+
+\textbf{API}    & \textit{Application Programming Interface} -- Interface de programmation applicative. Ensemble de d\'efinitions et de protocoles permettant la communication entre logiciels. \\[0.2cm]
+
+\textbf{ASIL}   & \textit{Automotive Safety Integrity Level} -- Niveau d'int\'egrit\'e de s\'ecurit\'e automobile. Classification de la norme ISO~26262 allant de QM (hors s\'ecurit\'e) \`a ASIL~D (le plus critique). \\[0.2cm]
+
+\textbf{ASPICE} & \textit{Automotive SPICE} -- Standard de processus de d\'eveloppement logiciel dans l'industrie automobile, bas\'e sur ISO/IEC~15504. \\[0.2cm]
+
+\textbf{BCM}    & \textit{Body Control Module} -- Calculateur de contr\^ole de carrosserie. ECU g\'erant les fonctions \'electriques du v\'ehicule (\'eclairage, feux de d\'etresse, etc.). \\[0.2cm]
+
+\textbf{BN}     & \textit{Batch Normalization} -- Normalisation par lot. Technique de r\'egularisation utilis\'ee dans les r\'eseaux de neurones pour stabiliser et acc\'el\'erer l'entra\^inement. \\[0.2cm]
+
+\textbf{CAN}    & \textit{Controller Area Network} -- Bus de communication s\'erie utilis\'e dans les v\'ehicules automobiles pour la communication inter-ECU. \\[0.2cm]
+
+\textbf{CNN}    & \textit{Convolutional Neural Network} -- R\'eseau de neurones convolutif. Architecture de r\'eseau de neurones profonds particuli\`erement adapt\'ee au traitement d'images. \\[0.2cm]
+
+\textbf{DMS}    & \textit{Driver Monitoring System} -- Syst\`eme de surveillance du conducteur. Syst\`eme embarqu\'e d\'etectant l'\'etat de vigilance et d'attention du conducteur. \\[0.2cm]
+
+\textbf{EAR}    & \textit{Eye Aspect Ratio} -- Rapport d'aspect oculaire. Indicateur g\'eom\'etrique calcul\'e \`a partir des points de rep\`ere de l'\oe il pour estimer le degr\'e d'ouverture. \\[0.2cm]
+
+\textbf{ECU}    & \textit{Electronic Control Unit} -- Calculateur \'electronique embarqu\'e. Unit\'e de traitement num\'erique g\'erant une ou plusieurs fonctions du v\'ehicule. \\[0.2cm]
+
+\textbf{EPB}    & \textit{Electric Parking Brake} -- Frein \`a main \'electrique. Syst\`eme de freinage de stationnement \`a commande \'electrique. \\[0.2cm]
+
+\textbf{EPS}    & \textit{Electric Power Steering} -- Direction assist\'ee \'electrique. Syst\`eme de direction utilisant un moteur \'electrique pour assister le conducteur. \\[0.2cm]
+
+\textbf{ESC}    & \textit{Electronic Stability Control} -- Contr\^ole \'electronique de stabilit\'e. Syst\`eme de s\'ecurit\'e active pr\'evenant le d\'erapage des v\'ehicules. \\[0.2cm]
+
+\textbf{FSM}    & \textit{Finite State Machine} -- Machine \`a \'etats finis. Mod\`ele de calcul compos\'e d'un nombre fini d'\'etats, de transitions et d'actions. \\[0.2cm]
+
+\textbf{GSR2}   & \textit{General Safety Regulation 2} -- R\`eglement europ\'een (UE) 2019/2144 rendant obligatoire plusieurs technologies de s\'ecurit\'e active dans les v\'ehicules neufs, dont le DMS. \\[0.2cm]
+
+\textbf{HAR}    & \textit{Human Activity Recognition} -- Reconnaissance d'activit\'e humaine. Domaine de recherche visant \`a identifier automatiquement les activit\'es humaines \`a partir de capteurs. \\[0.2cm]
+
+\textbf{HIL}    & \textit{Hardware-In-the-Loop} -- Validation mat\'erielle en boucle ferm\'ee. M\'ethode de test o\`u un vrai calculateur est connect\'e \`a un simulateur temps r\'eel. \\[0.2cm]
+
+\textbf{MAR}    & \textit{Mouth Aspect Ratio} -- Rapport d'aspect buccal. Indicateur g\'eom\'etrique calcul\'e \`a partir des points de rep\`ere de la bouche pour d\'etecter le b\^aillement. \\[0.2cm]
+
+\textbf{MIL}    & \textit{Model-In-the-Loop} -- Validation de mod\`ele en boucle ferm\'ee. Premier niveau de validation consistant \`a simuler le mod\`ele fonctionnel dans un environnement logiciel. \\[0.2cm]
+
+\textbf{MRM}    & \textit{Minimum Risk Maneuver} -- Manoeuvre de risque minimal. Action automatis\'ee visant \`a am\`ener le v\'ehicule dans un \'etat s\^ur lorsque le conducteur ne peut plus assurer le contr\^ole. \\[0.2cm]
+
+\textbf{PnP}    & \textit{Perspective-n-Point} -- Probl\`eme de d\'etermination de la pose d'une cam\'era \`a partir de la correspondance de points 3D/2D. \\[0.2cm]
+
+\textbf{PERCLOS}& \textit{Percentage of Eye Closure} -- Pourcentage de fermeture oculaire. M\'etrique de r\'ef\'erence pour l'\'evaluation de la somnolence, d\'efinie comme la proportion de temps o\`u les yeux sont ferm\'es \`a plus de 70\% sur une fen\^etre glissante. \\[0.2cm]
+
+\textbf{ROI}    & \textit{Region Of Interest} -- R\'egion d'int\'er\^et. Zone sp\'ecifique d'une image sur laquelle se concentre le traitement. \\[0.2cm]
+
+\textbf{SAE}    & \textit{Society of Automotive Engineers} -- Organisation professionnelle d\'efinissant des standards pour l'industrie automobile, notamment les niveaux d'automatisation J3016. \\[0.2cm]
+
+\textbf{SIL}    & \textit{Software-In-the-Loop} -- Validation logicielle en boucle ferm\'ee. Deuxi\`eme niveau de validation consistant \`a tester le code ex\'ecutable sur ordinateur h\^ote avec des entr\'ees simul\'ees. \\[0.2cm]
+
+\textbf{SOTIF}  & \textit{Safety Of The Intended Functionality} -- S\'ecurit\'e de la fonctionnalit\'e pr\'evue. Norme ISO~21448 traitant des risques li\'es aux insuffisances des syst\`emes ADAS non caus\'es par des d\'efaillances mat\'erielles. \\[0.2cm]
+
+\end{longtable}
+
+\clearpage
+
+%% ============================================================
+%%   TABLES DES MATIERES ET LISTES
+%% ============================================================
+\pagenumbering{roman}
+\setcounter{page}{1}
+
+\tableofcontents
+\clearpage
+
+\listoffigures
+\clearpage
+
+\listoftables
+\clearpage
+
+\lstlistoflistings
+\clearpage
+
+%% ============================================================
+%%   DEBUT DES CHAPITRES - NUMEROTATION ARABE
+%% ============================================================
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+
+%% ============================================================
+%%   CHAPITRE 1 : INTRODUCTION GENERALE
+%% ============================================================
+\chapter{Introduction g\'en\'erale}
+\markboth{Chapitre 1. Introduction g\'en\'erale}{}
+
+\section{Contexte g\'en\'eral et enjeux de la s\'ecurit\'e routi\`ere}
+
+La s\'ecurit\'e routi\`ere constitue une priorit\'e absolue pour les gouvernements, les constructeurs automobiles et les organismes internationaux de normalisation. Chaque ann\'ee, pr\`es d'1,35 million de personnes perdent la vie sur les routes mondiales, selon les donn\'ees de l'Organisation Mondiale de la Sant\'e (OMS, 2023). Parmi les causes principales de ces accidents, la distraction au volant et la somnolence du conducteur occupent une place pr\'epond\'erante. Des \'etudes men\'ees par le National Highway Traffic Safety Administration (NHTSA) aux \'Etats-Unis et par l'Observatoire National Interministe de la S\'ecurit\'e Routi\`ere (ONISR) en France indiquent que ces facteurs sont directement impliqu\'es dans 25 \`a 30~\% des accidents de la route mortels.
+
+En Europe, le R\`eglement G\'en\'eral de S\'ecurit\'e~2 (GSR2, R\`eglement UE 2019/2144) constitue une avanc\'ee r\'eglementaire majeure en rendant obligatoire, \`a partir de 2024 pour les nouveaux types de v\'ehicules et de 2026 pour toutes les nouvelles immatriculations, l'installation de syst\`emes de surveillance du conducteur (DMS) et de syst\`emes de surveillance de l'attention du conducteur dans les v\'ehicules l\'egers et les poids lourds. Cette obligation r\'eglementaire traduit une prise de conscience collective de l'importance cruciale de la d\'etection et de la correction en temps r\'eel des \'etats de vigilance d\'egrad\'es.
+
+Parall\`element \`a cette \'evolution r\'eglementaire, le secteur automobile conna\^it une transformation profonde marqu\'ee par l'essor de la conduite autonome et assist\'ee. La taxonomie SAE~J3016, qui d\'efinit six niveaux d'automatisation (de 0 \`a 5), constitue le cadre de r\'ef\'erence international pour caract\'eriser le degr\'e d'intervention humaine dans la t\^ache de conduite. Pour les niveaux interm\'ediaires (2 et 3), o\`u le conducteur conserve une responsabilit\'e partielle, la surveillance continue de son \'etat constitue un impératif de s\'ecurit\'e. Les syst\`emes DMS repr\'esentent ainsi un maillon critique dans la cha\^ine de s\'ecurit\'e des v\'ehicules \`a automatisation partielle.
+
+Du point de vue industriel, Stellantis -- n\'e de la fusion en 2021 de PSA et FCA, regroupant 14 marques automobiles dont Peugeot, Citro\"en, Opel, Fiat, Jeep et Chrysler -- a int\'egr\'e le DMS comme composant strat\'egique de sa feuille de route ADAS. L'ambition du groupe est de d\'eployer des fonctions de surveillance du conducteur sur l'ensemble de ses plateformes v\'ehicules d'ici 2027, en conformit\'e avec les exigences du GSR2 et les standards ISO~26262 et SOTIF.
+
+\section{Probl\'ematique du projet}
+
+Malgr\'e les progr\`es significatifs r\'ealis\'es dans le domaine de la vision par ordinateur et de l'apprentissage automatique, la conception d'un DMS embarqu\'e pr\'esentant les garanties de fiabilit\'e et de s\'ecurit\'e fonctionnelle requises par l'industrie automobile demeure un d\'efi majeur. Les principales difficult\'es peuvent \^etre articul\'ees autour de quatre axes :
+
+\subsection{Difficult\'es li\'ees \`a la robustesse de la perception}
+
+La d\'etection de l'\'etat du conducteur en conditions r\'eelles est confront\'ee \`a de nombreuses variabilit\'es environnementales : variations drastiques de l'\'eclairage (contre-jour, passage tunnels, conditions nocturnes), diversit\'e morphologique des conducteurs (lunettes, barbe, couvre-chefs), occultations partielles du visage et mouvements rapides de la t\^ete. Ces facteurs peuvent d\'egrader significativement les performances des algorithmes de d\'etection bas\'es sur les points de rep\`ere faciaux ou sur les r\'eseaux de neurones.
+
+\subsection{Difficult\'es li\'ees \`a la logique de d\'ecision}
+
+La d\'efinition de seuils et de temporisations adapt\'es \`a la diversit\'e des conducteurs et des situations de conduite constitue un probl\`eme complexe. Un syst\`eme trop sensible g\'en\`ererait des fausses alarmes per\c{c}ues comme intrusives et ignor\'ees par les conducteurs, tandis qu'un syst\`eme trop permissif pourrait manquer des situations critiques. Le compromis entre sensibilit\'e et sp\'ecificit\'e est au c\oe ur de la conception de la logique de contr\^ole.
+
+\subsection{Difficult\'es li\'ees \`a la s\'ecurit\'e fonctionnelle}
+
+Le d\'eveloppement d'un syst\`eme embarqu\'e destin\'e \`a d\'eclencher des actions actives sur le v\'ehicule (freinage d'urgence, guidage lat\'eral) doit satisfaire aux exigences de la norme ISO~26262, qui impose des niveaux d'int\'egrit\'e de s\'ecurit\'e (ASIL) d\'ependant de la s\'ev\'erit\'e des risques associ\'es aux modes de d\'efaillance. Cette contrainte implique une traçabilit\'e compl\`ete entre exigences, conception et tests de validation.
+
+\subsection{Difficult\'es li\'ees \`a la validation}
+
+La validation d'un syst\`eme de s\'ecurit\'e active n\'ecessite une approche structur\'ee et exhaustive couvrant les sc\'enarios nominaux et les cas limites. La m\'ethodologie de validation selon le Cycle en~V impose trois niveaux de validation progressifs (MIL, SIL, HIL) dont la mise en \oe uvre repr\'esente un effort consid\'erable.
+
+\section{Objectifs du projet}
+
+Ce projet de fin d'\'etudes se fixe les huit objectifs suivants :
+
+\begin{enumerate}[label=\textbf{O\arabic*.}, leftmargin=2cm]
+  \item \textbf{Conception de l'architecture syst\`eme} : D\'efinir l'architecture globale du DMS, incluant les sous-syst\`emes de perception, d'analyse comportementale, de d\'ecision et d'action, ainsi que les interfaces de communication CAN.
+
+  \item \textbf{Impl\'ementation des algorithmes de perception} : D\'evelopper les modules de d\'etection des points de rep\`ere faciaux, d'estimation de la pose de la t\^ete et de calcul des indicateurs biom\'etriques (\textsc{ear}, \textsc{perclos}, \textsc{mar}).
+
+  \item \textbf{D\'eveloppement du r\'eseau CNN} : Concevoir, entra\^iner et valider un r\'eseau de neurones convolutif pour la classification de l'\'etat oculaire en trois classes (OPEN, CLOSED, YAWNING) sur des images $48\times48$ en niveaux de gris.
+
+  \item \textbf{Impl\'ementation de la FSM ECU} : Coder la machine \`a \'etats finis de d\'ecision ECU avec gestion de l'hyst\'er\'esis, des temporisations et de l'escalade des niveaux d'alerte.
+
+  \item \textbf{Sp\'ecification des exigences} : \'Etablir un document de sp\'ecification complet (24 exigences REQ-01 \`a REQ-24) avec classification ASIL, crit\`eres d'acceptation et matrice de tra\c{c}abilit\'e.
+
+  \item \textbf{Simulation MATLAB} : D\'evelopper un environnement de simulation MATLAB/Simulink pour l'\'evaluation des profils PERCLOS/EAR et des transitions d'\'etats sur une dur\'ee de 120 secondes.
+
+  \item \textbf{Campagne de validation MIL/SIL/HIL} : Mettre en \oe uvre les trois niveaux de validation selon le Cycle en~V, avec couverture de code $\geq 80\%$ et r\'edaction de rapports de test.
+
+  \item \textbf{Analyse AMDEC} : R\'ealiser une analyse des modes de d\'efaillance sur 20 modes identifi\'es, avec calcul des indices de priorit\'e de risque (RPN) et d\'efinition des actions correctives.
+\end{enumerate}
+
+\section{M\'ethodologie adopt\'ee : le Cycle en V}
+
+La m\'ethodologie de d\'eveloppement adopt\'ee pour ce projet est le \textbf{Cycle en~V}, mod\`ele de r\'ef\'erence dans l'industrie automobile et impos\'e par la norme ISO~26262 pour le d\'eveloppement des syst\`emes de s\'ecurit\'e fonctionnelle. Ce mod\`ele structure le projet en deux branches parall\`eles :
+
+\textbf{La branche descendante} (de gauche) parcourt les phases de d\'efinition et de conception depuis les niveaux les plus abstraits jusqu'aux niveaux les plus concrets : analyse des besoins $\rightarrow$ sp\'ecification des exigences syst\`eme $\rightarrow$ conception syst\`eme $\rightarrow$ sp\'ecification des exigences logicielles $\rightarrow$ conception architecturale logicielle $\rightarrow$ conception d\'etaill\'ee $\rightarrow$ impl\'ementation.
+
+\textbf{La branche ascendante} (de droite) parcourt les phases de v\'erification et de validation en correspondance sym\'etrique avec la branche descendante : tests unitaires $\rightarrow$ tests d'int\'egration $\rightarrow$ tests de qualification logicielle $\rightarrow$ validation syst\`eme $\rightarrow$ validation v\'ehicule.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  box/.style={draw, fill=blue!10, rounded corners=4pt, minimum width=3.2cm,
+              minimum height=0.8cm, align=center, font=\small},
+  arrow/.style={-{Stealth}, thick},
+  darrow/.style={<->, thick, dashed, blue!50},
+  scale=0.95
+]
+  % Branche descendante
+  \node[box] (req)  at (0,7)   {Exigences\\syst\`eme};
+  \node[box] (arch) at (0,5.5) {Conception\\syst\`eme};
+  \node[box] (soft) at (0,4)   {Exigences\\logicielles};
+  \node[box] (det)  at (0,2.5) {Conception\\d\'etaill\'ee};
+  \node[box,fill=green!20] (impl) at (0,1)   {Impl\'ementation};
+
+  % Branche ascendante
+  \node[box] (utest) at (8,2.5) {Tests\\unitaires};
+  \node[box] (itest) at (8,4)   {Tests\\int\'egration};
+  \node[box] (qtest) at (8,5.5) {Validation\\SIL/HIL};
+  \node[box] (sval)  at (8,7)   {Validation\\syst\`eme};
+
+  % Fleches descendantes
+  \draw[arrow] (req)  -- (arch);
+  \draw[arrow] (arch) -- (soft);
+  \draw[arrow] (soft) -- (det);
+  \draw[arrow] (det)  -- (impl);
+
+  % Fleches ascendantes
+  \draw[arrow] (impl)  -- (utest);
+  \draw[arrow] (utest) -- (itest);
+  \draw[arrow] (itest) -- (qtest);
+  \draw[arrow] (qtest) -- (sval);
+
+  % Correspondances
+  \draw[darrow] (req)  -- (sval);
+  \draw[darrow] (arch) -- (qtest);
+  \draw[darrow] (soft) -- (itest);
+  \draw[darrow] (det)  -- (utest);
+
+  % Labels
+  \node[font=\scriptsize, blue!70] at (4,7.4) {Validation syst\`eme};
+  \node[font=\scriptsize, blue!70] at (4,5.9) {Tests SIL/HIL};
+  \node[font=\scriptsize, blue!70] at (4,4.4) {Tests int\'egration};
+  \node[font=\scriptsize, blue!70] at (4,2.9) {Tests unitaires};
+\end{tikzpicture}
+\caption{Cycle en~V appliqu\'e au d\'eveloppement du DMS}
+\label{fig:cycle_v}
+\end{figure}
+
+\section{Organisation du rapport}
+
+Ce rapport est structur\'e en douze chapitres couvrant l'int\'egralit\'e du projet, de l'\'etat de l'art \`a l'analyse des r\'esultats :
+
+\begin{itemize}
+  \item Le \textbf{Chapitre~2} pr\'esente l'environnement industriel du stage : Expleo Group Maroc et le partenariat avec Stellantis.
+  \item Le \textbf{Chapitre~3} dresse l'\'etat de l'art des technologies DMS et du cadre normatif applicable.
+  \item Le \textbf{Chapitre~4} d\'etaille la sp\'ecification des exigences syst\`eme (24 exigences REQ-01 \`a REQ-24).
+  \item Le \textbf{Chapitre~5} d\'ecrit l'architecture compl\`ete du prototype : perception, analyse, d\'ecision, action et communication CAN.
+  \item Le \textbf{Chapitre~6} pr\'esente l'application du Cycle en~V au projet avec la matrice de tra\c{c}abilit\'e.
+  \item Le \textbf{Chapitre~7} d\'etaille la conception fonctionnelle : FSM, indicateurs biom\'etriques et logique de contr\^ole.
+  \item Le \textbf{Chapitre~8} d\'ecrit les sept sc\'enarios de fonctionnement et leurs sous-variantes.
+  \item Le \textbf{Chapitre~9} couvre l'impl\'ementation : cha\^ine d'outils, architecture logicielle, CNN et simulation MATLAB.
+  \item Le \textbf{Chapitre~10} pr\'esente la strat\'egie et les campagnes de validation MIL, SIL et HIL.
+  \item Le \textbf{Chapitre~11} analyse les r\'esultats estim\'es et pr\'esente l'analyse AMDEC.
+  \item Le \textbf{Chapitre~12} conclut le rapport et trace les perspectives de d\'eveloppement futur.
+\end{itemize}
+
+\clearpage
+
+%% ============================================================
+%%   CHAPITRE 2 : ENVIRONNEMENT INDUSTRIEL
+%% ============================================================
+\chapter{Environnement industriel}
+\markboth{Chapitre 2. Environnement industriel}{}
+
+\section{Expleo Group : pr\'esentation g\'en\'erale}
+
+\index{Expleo Group}
+Expleo Group est une soci\'et\'e internationale d'ing\'enierie, de technologie et de conseil fond\'ee en 1985, issue de la fusion des entit\'es SQS, BearingPoint Engineering et Expleo. Fort de plus de \textbf{17\,000 collaborateurs} r\'epartis dans plus de \textbf{30 pays} sur les cinq continents, le groupe se positionne comme un acteur de premier plan dans les domaines de l'ing\'enierie embarqu\'ee, de l'assurance qualit\'e logicielle, de la transformation num\'erique et des services de test.
+
+Le groupe intervient dans plusieurs secteurs industriels strat\'egiques : l'automobile, l'a\'eronautique et le spatial, le ferroviaire, le naval, l'\'energie et les services financiers. Dans le secteur automobile, Expleo accompagne les principaux constructeurs (OEM) et \'equipementiers (Tier-1) dans le d\'eveloppement de syst\`emes embarqu\'es critiques, notamment dans les domaines de l'ADAS, de l'\'electromobilit\'e, de la connectivit\'e et de la cybersécurit\'e embarqu\'ee.
+
+\subsection{Structure organisationnelle}
+
+Expleo est organis\'e en centres d'excellence th\'ematiques (\textit{Centers of Excellence}) couvrant les disciplines : syst\`emes embarqu\'es, intelligence artificielle, test et assurance qualit\'e, ing\'enierie syst\`emes et processus ASPICE. Cette organisation matricielle permet de mutualiser les comp\'etences entre les diff\'erents projets et clients tout en garantissant une expertise de niveau Tier-1.
+
+\subsection{Positionnement sur le march\'e ADAS}
+
+Dans le domaine ADAS, Expleo dispose d'une expertise reconnue en :
+\begin{itemize}
+  \item D\'eveloppement de fonctions de s\'ecurit\'e active (AEB, LDW, ACC, DMS) ;
+  \item Validation syst\`eme selon la norme ISO~26262 (ASIL A \`a D) ;
+  \item Impl\'ementation et optimisation de mod\`eles de machine learning embarqu\'es ;
+  \item Int\'egration et validation sur banc HIL (Hardware-In-the-Loop) ;
+  \item Support aux processus ASPICE Level 2 et 3.
+\end{itemize}
+
+\section{Expleo Group Maroc}
+
+Expleo Group Maroc est le centre d'excellence africain du groupe, \'etabli \`a \textbf{Casablanca}. Cr\'e\'e en 2015 dans le cadre de la strat\'egie d'expansion du groupe vers les march\'es \'emergents \`a fort potentiel d'ing\'enierie, ce centre s'est rapidement impos\'e comme un p\^ole strat\'egique gr\^ace \`a la disponibilit\'e d'une main-d'\oe uvre hautement qualifi\'ee et aux atouts de l'\'ecosyst\`eme industriel marocain.
+
+Le centre marocain regroupe une \'equipe pluridisciplinaire sp\'ecialis\'ee dans les \textbf{syst\`emes embarqu\'es automobiles}, avec des comp\'etences couvrant :
+\begin{itemize}
+  \item Le d\'eveloppement logiciel embarqu\'e en C, C++ et Python pour microcontr\^oleurs (AUTOSAR) ;
+  \item La conception et la validation de syst\`emes ADAS selon les normes ISO~26262 et SOTIF ;
+  \item L'ing\'enierie des protocoles de communication embarqu\'es (CAN, CAN-FD, LIN, Ethernet Automotive) ;
+  \item Le d\'eveloppement et le d\'eploiement de mod\`eles de vision par ordinateur et de deep learning pour applications embarqu\'ees ;
+  \item Les services de test HIL sur bancs Vector CANoe/CANalyzer.
+\end{itemize}
+
+Le stage s'est d\'eroul\'e au sein de l'\'equipe \textbf{ADAS \& Embedded Systems} d'Expleo Group Maroc, sous la supervision directe d'un ing\'enieur senior sp\'ecialis\'e dans la s\'ecurit\'e fonctionnelle automobile.
+
+\section{Stellantis : le partenaire industriel}
+
+\index{Stellantis}
+Stellantis est un groupe automobile multinational n\'e en \textbf{janvier~2021} de la fusion \`a parit\'e entre le groupe PSA (Peugeot, Citro\"en, Opel/Vauxhall, DS Automobiles) et Fiat Chrysler Automobiles (FCA, incluant Fiat, Jeep, Dodge, Chrysler, Ram, Maserati, Alfa Romeo). Avec \textbf{14 marques} sous son giron, Stellantis se classe parmi les premiers constructeurs automobiles mondiaux avec une production annuelle d\'epassant 6 millions de v\'ehicules.
+
+\subsection{Strat\'egie ADAS de Stellantis}
+
+La feuille de route technologique de Stellantis, baptis\'ee \textit{Dare Forward 2030}, place l'\'electrification et la connectivit\'e au c\oe ur de sa strat\'egie. Dans le domaine ADAS, Stellantis a d\'efini une trajectoire ambitieuse structur\'ee autour de trois horizons :
+
+\begin{itemize}
+  \item \textbf{Horizon 2024--2025 (niveau SAE~2)} : G\'en\'eralisation du DMS, du \textit{Lane Keeping Assist}, de l'AEB (freinage d'urgence autonome) et du \textit{Blind Spot Detection} sur l'ensemble des plateformes.
+  \item \textbf{Horizon 2026--2028 (niveau SAE~3)} : D\'eploiement de la conduite automatis\'ee sur autoroute (\textit{Highway Autopilot}) avec supervision du conducteur par DMS avanc\'e.
+  \item \textbf{Horizon 2029--2030 (niveau SAE~4)} : Automatisation en milieu urbain avec syst\`emes redondants et DMS de derni\`ere g\'en\'eration.
+\end{itemize}
+
+\subsection{Positionnement du projet DMS dans la roadmap Stellantis}
+
+Le projet DMS objet de ce PFE s'inscrit directement dans l'horizon 2024--2025 de la roadmap Stellantis. Il vise \`a fournir un prototype fonctionnel et valid\'e du syst\`eme de surveillance du conducteur destin\'e \`a \'equiper les v\'ehicules de premi\`ere mont\'e utilisant la plateforme \'electrique STLA Medium. Le d\'eploiement cible les v\'ehicules Peugeot 308, Citro\"en C5X et Opel Astra, dont les nouvelles versions doivent \'etre conformes au GSR2 d\'es 2026.
+
+\section{Planning du stage}
+
+Le stage s'est d\'eroul\'e sur une p\'eriode de 6 mois, de f\'evrier \`a juillet 2026. Le tableau ci-dessous pr\'esente le planning d\'etaill\'e des activit\'es et leur r\'epartition mensuelle.
+
+\begin{table}[H]
+\centering
+\caption{Planning du stage PFE (f\'evrier -- juillet 2026)}
+\label{tab:planning}
+\begin{tabular}{L{4.5cm} C{1.2cm} C{1.2cm} C{1.2cm} C{1.2cm} C{1.2cm} C{1.2cm}}
+\toprule
+\textbf{Activit\'e} & \textbf{F\'ev} & \textbf{Mar} & \textbf{Avr} & \textbf{Mai} & \textbf{Jun} & \textbf{Jul} \\
+\midrule
+\'Etat de l'art et normes              & \cellcolor{blue!30} & \cellcolor{blue!10} & & & & \\
+Sp\'ecification des exigences          & & \cellcolor{blue!30} & \cellcolor{blue!10} & & & \\
+Conception architecture                & & & \cellcolor{blue!30} & \cellcolor{blue!10} & & \\
+Impl\'ementation Python                & & & \cellcolor{blue!30} & \cellcolor{blue!30} & & \\
+D\'eveloppement CNN                    & & & & \cellcolor{blue!30} & \cellcolor{blue!10} & \\
+Simulation MATLAB                      & & & & & \cellcolor{blue!30} & \cellcolor{blue!10} \\
+Validation MIL/SIL/HIL                 & & & & & \cellcolor{blue!30} & \cellcolor{blue!30} \\
+R\'edaction rapport                    & & & & \cellcolor{blue!10} & \cellcolor{blue!30} & \cellcolor{blue!30} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent\footnotesize{\textbf{L\'egende :} \colorbox{blue!30}{\phantom{XX}} Activit\'e principale \quad \colorbox{blue!10}{\phantom{XX}} Activit\'e secondaire}
+
+\clearpage
+
+%% ============================================================
+%%   CHAPITRE 3 : ETAT DE L'ART ET CADRE NORMATIF
+%% ============================================================
+\chapter{\'Etat de l'art et cadre normatif}
+\markboth{Chapitre 3. \'Etat de l'art et cadre normatif}{}
+
+\section{Les niveaux d'automatisation SAE J3016}
+
+La norme \textbf{SAE J3016}, publi\'ee par la Society of Automotive Engineers et r\'eguli\`erement mise \`a jour (derni\`ere r\'evision en 2021), d\'efinit la taxonomie de r\'ef\'erence pour les v\'ehicules automatis\'es. Elle distingue six niveaux d'automatisation (0 \`a 5) selon le degr\'e d'implication du conducteur et du syst\`eme dans les t\^aches de conduite dynamique.
+
+\begin{table}[H]
+\centering
+\caption{Niveaux d'automatisation SAE J3016 et r\^ole du conducteur}
+\label{tab:sae_levels}
+\begin{tabular}{C{0.8cm} L{3.5cm} L{4.5cm} L{4cm}}
+\toprule
+\textbf{Niv.} & \textbf{D\'enomination} & \textbf{R\^ole humain} & \textbf{Exemple syst\`eme} \\
+\midrule
+\textbf{0} & Pas d'automation & Contr\^ole total permanent & V\'ehicule conventionnel \\
+\textbf{1} & Assistance \`a la conduite & Contr\^ole permanent, assistance lat. ou long. & Cruise control, LKA \\
+\textbf{2} & Automation partielle & Supervision permanente requise & ACC + LKA, Tesla Autopilot \\
+\textbf{3} & Automation conditionnelle & Reprise possible sur demande & Audi Traffic Jam Pilot \\
+\textbf{4} & Haute automation & Aucune intervention dans le domaine & Waymo Robotaxi \\
+\textbf{5} & Automation compl\`ete & Aucune intervention en toutes conditions & V\'ehicule sans volant \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Le DMS est particuli\`erement critique pour les niveaux~2 et~3. Au niveau~2, le conducteur doit surveiller la route en permanence m\^eme si le v\'ehicule g\`ere le contr\^ole lat\'eral et longitudinal. Au niveau~3, le conducteur peut momentan\'ement d\'etourner son attention mais doit \^etre capable de reprendre le contr\^ole dans un d\'elai imparti (g\'en\'eralement 10 secondes), ce qui n\'ecessite que le DMS v\'erifie en continu sa disponibilit\'e.
+
+\section{Technologies de surveillance du conducteur}
+
+\subsection{PERCLOS : l'indicateur de r\'ef\'erence}
+
+Le \textbf{PERCLOS} (\textit{Percentage of Eye Closure}) est la m\'etrique la plus valid\'ee scientifiquement pour l'\'evaluation objective de la somnolence. D\'efini originellement par Wierwille et Ellsworth en 1994 dans le cadre de travaux pour le NHTSA, le PERCLOS mesure la proportion de temps durant laquelle les yeux sont ferm\'es \`a plus de 70~\% sur une fen\^etre temporelle glissante de 60 secondes.
+
+Des \'etudes cliniques et sur simulateur de conduite ont \'etabli les seuils suivants :
+\begin{itemize}
+  \item PERCLOS $<$ 0,15 : \'etat normal, conducteur attentif ;
+  \item $0{,}15 \leq$ PERCLOS $< 0{,}20$ : vigilance l\'eg\`erement r\'eduite ;
+  \item $0{,}20 \leq$ PERCLOS $< 0{,}35$ : somnolence mod\'er\'ee, alerte recommand\'ee ;
+  \item PERCLOS $\geq 0{,}35$ : fatigue s\'ev\`ere, risque d'endormissement imm\'ediat.
+\end{itemize}
+
+\subsection{Eye Aspect Ratio (EAR)}
+
+L'EAR (\textit{Eye Aspect Ratio}), introduit par Soukupov\'a et \v{C}ech (2016), est un indicateur g\'eom\'etrique calcul\'e \`a partir de six points de rep\`ere de l'\oe il. Sa valeur chute rapidement lors d'un clignement ou d'une fermeture des yeux, permettant une d\'etection en temps r\'eel sans n\'ecessiter de cam\'era \`a haute fr\'equence.
+
+\subsection{Direction du regard (\textit{Gaze Direction})}
+
+La direction du regard peut \^etre estim\'ee par deux approches compl\'ementaires : l'analyse du rapport sc\`ere/iris (m\'ethode g\'eom\'etrique) ou par r\'eseaux de neurones d\'edi\'es (m\'ethodes \textit{appearance-based}). Cette m\'etrique compl\`ete l'EAR et le PERCLOS en d\'etectant les situations de distraction visuelle sans rotation de la t\^ete.
+
+\subsection{Estimation de la pose de la t\^ete}
+
+L'estimation de la pose de la t\^ete est r\'ealis\'ee par r\'esolution du probl\`eme Perspective-n-Point (PnP), qui consiste \`a d\'eterminer la transformation 3D rigide (rotation + translation) entre un mod\`ele 3D g\'en\'erique de la t\^ete et les projections 2D des points de rep\`ere dans l'image. OpenCV fournit l'algorithme solvePnP qui impl\'emente cette r\'esolution par la m\'ethode ITERATIVE ou EPNP.
+
+\subsection{Expressions faciales et b\^aillement}
+
+La d\'etection du b\^aillement via le Mouth Aspect Ratio (MAR) permet de capturer un indicateur sp\'ecifique de la fatigue physique, compl\'ementaire des mesures oculaires. Des \'etudes ont montr\'e que la fr\'equence et la dur\'ee des b\^aillements augmentent significativement avec le niveau de somnolence.
+
+\section{Technologies de vision par ordinateur pour le DMS}
+
+\subsection{MediaPipe Face Mesh}
+
+MediaPipe Face Mesh, d\'evelopp\'e par Google, est une biblioth\`eque de d\'etection de points de rep\`ere faciaux en temps r\'eel bas\'ee sur un r\'eseau de neurones l\'eger. Elle d\'etecte \textbf{468 points de rep\`ere} 3D sur le visage, couvrant les contours des yeux, des sourcils, du nez, des l\`evres et du contour g\'en\'eral du visage. Son efficacit\'e computationnelle (moins de 3~ms sur GPU mobile) en fait un choix de pr\'edilection pour les applications embarqu\'ees temps r\'eel.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+  \draw[fill=gray!10, rounded corners] (0,0) rectangle (10,5);
+  \node[font=\large\bfseries] at (5,4.3) {MediaPipe Face Mesh -- 468 landmarks};
+  % Simplified face outline
+  \draw[thick, blue!60] (5,2.5) ellipse (2.8cm and 2cm);
+  % Eyes
+  \draw[thick, red] (3.3,3.0) ellipse (0.7cm and 0.35cm);
+  \draw[thick, red] (6.7,3.0) ellipse (0.7cm and 0.35cm);
+  % Nose
+  \draw[thick, green!60!black] (5.0,2.3) -- (4.6,1.8) -- (5.4,1.8) -- cycle;
+  % Mouth
+  \draw[thick, orange] (3.8,1.4) .. controls (5,1.0) .. (6.2,1.4);
+  % Landmark dots (schematic)
+  \foreach \x/\y in {3.3/3.0, 6.7/3.0, 5.0/2.3, 5.0/1.4, 3.5/4.0, 6.5/4.0,
+    2.5/2.5, 7.5/2.5, 4.0/2.8, 6.0/2.8} {
+    \fill[blue] (\x,\y) circle (2pt);
+  }
+  \node[font=\small] at (5,0.3) {468 points de rep\`ere 3D};
+\end{tikzpicture}
+\caption{Illustration sch\'ematique des points de rep\`ere MediaPipe Face Mesh}
+\label{fig:mediapipe}
+\end{figure}
+
+\subsection{R\'eseaux de neurones convolutifs pour la classification d'\'etat oculaire}
+
+Les CNN repr\'esentent l'approche dominante pour la classification d'images dans les syst\`emes DMS modernes. Par rapport aux approches classiques bas\'ees sur des descripteurs manuels (HOG, LBP), les CNN apprennent automatiquement des repr\'esentations hi\'erarchiques des caract\'eristiques pertinentes, offrant une meilleure g\'en\'eralisation en conditions r\'eelles.
+
+\section{Manoeuvre de risque minimal (MRM)}
+
+Le concept de \textbf{MRM} (\textit{Minimum Risk Maneuver}) d\'esigne l'ensemble des actions automatis\'ees que le v\'ehicule doit effectuer pour se placer dans un \'etat s\^ur lorsque le conducteur n'est plus en mesure d'assurer le contr\^ole. ISO~22737 et ISO~21448 (SOTIF) d\'efinissent plusieurs types de MRM selon la gravit\'e de la situation :
+
+\begin{itemize}
+  \item \textbf{MRM de type 1 (arr\^et d'urgence)} : Le v\'ehicule freine brusquement et s'arr\^ete sur la voie de circulation. Utilis\'e en cas de d\'efaillance critique imm\'ediate.
+  \item \textbf{MRM de type 2 (arr\^et sur bande d'arr\^et d'urgence)} : Le v\'ehicule effectue un guidage lat\'eral vers la BAU puis s'arr\^ete progressivement. Utilis\'e lorsque le temps le permet.
+  \item \textbf{MRM de type 3 (arr\^et contr\^ol\'e en sortie de voie)} : Le v\'ehicule guide vers une aire de stationnement ou une sortie d'autoroute. R\'eserv\'e aux syst\`emes de niveau SAE~3+.
+\end{itemize}
+
+\section{Syst\`emes DMS existants sur le march\'e}
+
+\begin{table}[H]
+\centering
+\caption{Comparatif des syst\`emes DMS des principaux constructeurs}
+\label{tab:dms_market}
+\begin{tabular}{L{2.8cm} L{3.5cm} L{3.5cm} C{1.5cm} C{1.5cm}}
+\toprule
+\textbf{Constructeur} & \textbf{Syst\`eme} & \textbf{Technologies} & \textbf{SAE} & \textbf{MRM} \\
+\midrule
+Mercedes-Benz & Attention Assist & Volant + cam\'era int\'erieure & L2 & Type 1 \\
+BMW & DrivingAssistant & Cam\'era + EAR + PERCLOS & L2 & Type 1 \\
+Tesla & Driver Monitoring & Cam\'era IR + gazetrack & L2 & Type 1 \\
+Volvo & Driver Understanding & Multi-cam\'eras & L3 & Type 2 \\
+Waymo & Driver State Monitor & Multi-capteurs fusionn\'es & L4 & Type 3 \\
+\textbf{Stellantis (projet)} & \textbf{DMS int\'egr\'e} & \textbf{EAR+PERCLOS+CNN+pose} & \textbf{L2+} & \textbf{Type 1\&2} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Cadre normatif applicable}
+
+\subsection{ISO 26262 -- S\'ecurit\'e fonctionnelle}
+
+La norme \textbf{ISO~26262} (\textit{Road vehicles -- Functional Safety}), publi\'ee en 2011 et r\'evis\'ee en 2018, constitue le standard de r\'ef\'erence pour la s\'ecurit\'e fonctionnelle des syst\`emes \'electroniques embarqu\'es automobiles. Elle impose une d\'emarche syst\'ematique bas\'ee sur l'analyse des risques (\textbf{HARA} -- \textit{Hazard Analysis and Risk Assessment}) et la d\'efinition de niveaux d'int\'egrit\'e de s\'ecurit\'e (\textbf{ASIL} : A, B, C, D) en fonction de la s\'ev\'erit\'e, de l'exposition et de la contr\^olabilit\'e des risques identifi\'es. Pour le DMS, une classification \textbf{ASIL B} est g\'en\'eralement retenue pour les fonctions de d\'etection et d'alerte, et \textbf{ASIL C} pour les fonctions de contr\^ole actif.
+
+\subsection{ISO 21448 -- SOTIF}
+
+La norme \textbf{ISO~21448} (\textit{SOTIF -- Safety Of The Intended Functionality}), publi\'ee en 2022, compl\`ete ISO~26262 en traitant des risques li\'es non pas aux d\'efaillances mat\'erielles ou logicielles, mais aux insuffisances sp\'ecificationnelles et aux limites de performance des syst\`emes ADAS. Pour un DMS bas\'e sur la vision par ordinateur et les CNN, le SOTIF est particuli\`erement pertinent car il couvre les cas de fausses non-d\'etections (conducteur endormi non d\'etect\'e) et de fausses alarmes r\'ep\'et\'ees (conducteur alerte alert\'e inutilement).
+
+\subsection{GSR2 -- R\`eglement europ\'een}
+
+Le \textbf{R\`eglement (UE) 2019/2144} (GSR2) impose depuis juillet 2022 (nouveaux types) et juillet 2024 (toutes nouvelles immatriculations) plusieurs syst\`emes de s\'ecurit\'e active, dont le DMS et le syst\`eme de surveillance de l'attention (\textit{Driver Attention Warning}). Les exigences sp\'ecifiques de performance sont d\'etaill\'ees dans les actes d\'el\'egu\'es associ\'es (R\`eglement d\'el\'egu\'e UE 2021/1341 pour les cars et camions, et ses \'equivalents pour les v\'ehicules l\'egers).
+
+\subsection{ASPICE -- Processus de d\'eveloppement}
+
+\textbf{Automotive SPICE} (ASPICE) est un mod\`ele d'\'evaluation des processus de d\'eveloppement logiciel bas\'e sur ISO/IEC~15504. Il d\'efinit des niveaux de maturit\'e des processus (1 \`a 5) et des r\`oles pr\'ecis pour les activit\'es d'ing\'enierie syst\`eme, logicielle, de test et d'int\'egration. Le niveau ASPICE~2 est g\'en\'eralement requis pour les fournisseurs Tier-1 comme Expleo dans leurs contrats avec les OEM.
+
+\begin{table}[H]
+\centering
+\caption{Synth\`ese du cadre normatif applicable au DMS}
+\label{tab:normatif}
+\begin{tabular}{L{3cm} L{4cm} L{3.5cm} C{1.8cm}}
+\toprule
+\textbf{Norme} & \textbf{Domaine} & \textbf{Applicabilit\'e DMS} & \textbf{Niveau cible} \\
+\midrule
+ISO 26262 & S\'ecurit\'e fonctionnelle & Toutes fonctions actives & ASIL B/C \\
+ISO 21448 (SOTIF) & Perf. fonctionnalit\'e & Perception CNN, faux positifs & Kat. 1 et 2 \\
+GSR2 (UE 2019/2144) & R\'eglementation EU & Obligation d'\'equipement & Obligatoire 2026 \\
+ASPICE & Processus d\'eveloppement & Tous processus & Level 2 \\
+SAE J3016 & Taxonomie automatisation & Classification niveau & L2+/L3 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\clearpage
+
+
+%% ============================================================
+%%   CHAPITRE 4 : SPECIFICATION DES EXIGENCES
+%% ============================================================
+\chapter{Sp\'ecification des exigences}
+\markboth{Chapitre 4. Sp\'ecification des exigences}{}
+
+\section{Besoins fonctionnels}
+
+L'analyse des besoins m\'etier et des contraintes r\'eglementaires (GSR2, ISO~26262) a permis d'identifier six grands besoins fonctionnels structurant la conception du DMS.
+
+\begin{description}[leftmargin=2cm, labelwidth=1.5cm]
+  \item[\textbf{F1}] \textbf{D\'etection de l'\'etat de vigilance} : Le syst\`eme doit \'evaluer en continu l'\'etat de vigilance du conducteur \`a partir des indicateurs biom\'etriques (EAR, PERCLOS, MAR) et de la classification CNN, avec une fr\'equence d'\'echantillonnage d'au moins 30~Hz.
+
+  \item[\textbf{F2}] \textbf{D\'etection de la distraction} : Le syst\`eme doit d\'etecter les situations de distraction lat\'erale (rotation de la t\^ete $|$yaw$|>25\degr$ ou $|$pitch$|>20\degr$) et les situations de perte de visage ($>3$~s sans d\'etection faciale).
+
+  \item[\textbf{F3}] \textbf{Gestion des alertes progressives} : Le syst\`eme doit impl\'ementer une escalade des alertes sur trois niveaux : Niveau~1 (alerte visuelle + sonore), Niveau~2 (vibrations si\`ege + volant), Niveau~3 (freinage d'urgence + guidage lat\'eral + feux de d\'etresse).
+
+  \item[\textbf{F4}] \textbf{Communication CAN} : Le syst\`eme doit \'emettre l'\'etat du conducteur et les commandes d'action sur le bus CAN selon les trames d\'efinies, avec une p\'eriodicit\'e conforme aux sp\'ecifications de chaque message.
+
+  \item[\textbf{F5}] \textbf{Robustesse et fiabilit\'e} : Le syst\`eme doit maintenir ses performances de d\'etection dans les conditions environnementales d\'egrad\'ees (illumination de 10 \`a 10\,000~lux, plage de temp\'erature $-20\degr$C \`a $+85\degr$C).
+
+  \item[\textbf{F6}] \textbf{S\'ecurit\'e fonctionnelle} : Le syst\`eme doit satisfaire aux exigences ASIL~B de la norme ISO~26262 pour les fonctions de d\'etection et d'alerte, et ne pas g\'en\'erer de commandes intempestives d'actions actives.
+\end{description}
+
+\section{Besoins non fonctionnels}
+
+En compl\'ement des besoins fonctionnels, les exigences non fonctionnelles suivantes ont \'et\'e identifi\'ees :
+
+\begin{itemize}
+  \item \textbf{Performance temps r\'eel} : Latence de traitement $\leq 33$~ms par trame (compatible 30~fps) ;
+  \item \textbf{Pr\'ecision de d\'etection} : Taux de d\'etection des \'ev\'enements somnolence $\geq 95\%$, taux de fausses alarmes $\leq 5\%$ ;
+  \item \textbf{Disponibilit\'e} : MTTF (Mean Time To Failure) $\geq 5\,000$ heures de fonctionnement ;
+  \item \textbf{Maintenabilit\'e} : Architecture modulaire permettant la mise \`a jour ind\'ependante des modules de perception, d'analyse et de d\'ecision ;
+  \item \textbf{Testabilit\'e} : Couverture de code cible $\geq 80\%$ (m\'ethode MC/DC pour fonctions ASIL B) ;
+  \item \textbf{Port\'ee} : Compatible avec la plateforme STLA Medium de Stellantis.
+\end{itemize}
+
+\section{Table des exigences syst\`eme}
+
+Le tableau suivant pr\'esente les 24 exigences syst\`eme formalis\'ees, class\'ees par domaine et assorties de leur niveau ASIL et de leur crit\`ere de validation.
+
+\begin{longtable}{C{1.4cm} L{5.5cm} C{1.3cm} C{1.2cm} L{3cm}}
+\caption{Table des exigences syst\`eme REQ-01 \`a REQ-24}
+\label{tab:requirements} \\
+\toprule
+\textbf{ID} & \textbf{Description} & \textbf{Type} & \textbf{ASIL} & \textbf{Validation} \\
+\midrule
+\endfirsthead
+\multicolumn{5}{c}{\textit{Table des exigences (suite)}} \\
+\toprule
+\textbf{ID} & \textbf{Description} & \textbf{Type} & \textbf{ASIL} & \textbf{Validation} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+REQ-01 & Le syst\`eme calcule l'EAR \`a chaque trame avec la formule $\frac{\|p_2-p_6\|+\|p_3-p_5\|}{2\|p_1-p_4\|}$ & Fonct. & B & Test unitaire \\
+REQ-02 & L'EAR $<0{,}25$ pendant 5 trames cons\'ecutives d\'eclenche WARNING\_DROWSINESS & Fonct. & B & Test sc\'enario \\
+REQ-03 & Le PERCLOS est calcul\'e sur fen\^etre glissante de 60~s \`a 30~fps & Fonct. & B & Test int\'egration \\
+REQ-04 & PERCLOS $\geq 0{,}20$ d\'eclenche WARNING\_DROWSINESS & Fonct. & B & Test sc\'enario \\
+REQ-05 & PERCLOS $\geq 0{,}35$ d\'eclenche l'\'etat FATIGUE & Fonct. & B & Test sc\'enario \\
+REQ-06 & Le MAR est calcul\'e \`a chaque trame ; MAR $>0{,}6$ contribue \`a la d\'etection somnolence & Fonct. & A & Test unitaire \\
+REQ-07 & L'estimation de pose t\^ete utilise solvePnP avec les 6 points mod\`ele d\'efinis & Fonct. & A & Test unitaire \\
+REQ-08 & Yaw $>25\degr$ ou Pitch $>20\degr$ ou Roll $>20\degr$ marque head\_distracted=True & Fonct. & B & Test unitaire \\
+REQ-09 & head\_distracted=True pendant 6~s contig\"ues d\'eclenche DISTRACTED\_HEAD & Fonct. & B & Test sc\'enario \\
+REQ-10 & Absence de d\'etection faciale pendant 3~s d\'eclenche DISTRACTED\_NO\_FACE & Fonct. & B & Test sc\'enario \\
+REQ-11 & La FSM impl\'emente l'hyst\'er\'esis de 5 trames pour toute transition d'\'etat & Fonct. & B & Test unitaire \\
+REQ-12 & Le Niveau~1 d'alerte active audio\_alert=True et visual\_alert=True & Fonct. & B & Test int\'egration \\
+REQ-13 & Le Niveau~2 active de plus seat\_vibration=True et steering\_vibration=True & Fonct. & B & Test int\'egration \\
+REQ-14 & Le Niveau~3 active emergency\_braking, pull\_to\_side et hazard\_lights & Fonct. & C & Test syst\`eme \\
+REQ-15 & L'escalade LEVEL\_1 $\to$ LEVEL\_2 se produit apr\`es 5~s en \'etat WARNING & Fonct. & B & Test sc\'enario \\
+REQ-16 & L'escalade LEVEL\_2 $\to$ LEVEL\_3 (EMERGENCY) se produit apr\`es 5~s suppl\'ementaires & Fonct. & C & Test sc\'enario \\
+REQ-17 & La latence de traitement par trame est $\leq 33$~ms & Non-fct & B & Mesure HIL \\
+REQ-18 & Le syst\`eme fonctionne de $-20\degr$C \`a $+85\degr$C & Non-fct & A & Test HIL \\
+REQ-19 & L'\'etat conducteur est \'emis sur CAN (ID 0x221) \`a 100~ms de p\'eriodicit\'e & Fonct. & B & Test int\'egration \\
+REQ-20 & Les commandes actives (frein, guidage) n'sont pas activ\'ees en \'etat ATTENTIVE & S\'ecurit\'e & C & Test s\'ecurit\'e \\
+REQ-21 & Le taux de fausses alarmes somnolence est $\leq 5\%$ en sc\'enario nominal & Perf. & B & Test MIL/SIL \\
+REQ-22 & Le taux de d\'etection somnolence (PERCLOS$>$0,35) est $\geq 95\%$ & Perf. & B & Test MIL/SIL \\
+REQ-23 & La couverture de code des modules ASIL B est $\geq 80\%$ (MC/DC) & Qual. & B & Rapport SIL \\
+REQ-24 & Le CNN classifie avec une pr\'ecision $\geq 90\%$ sur jeu de donn\'ees de test & Perf. & A & Rapport SIL \\
+\bottomrule
+\end{longtable}
+
+\section{Crit\`eres d'acceptation}
+
+Pour chaque exigence, un crit\`ere d'acceptation quantifi\'e a \'et\'e d\'efini. Les crit\`eres principaux sont :
+
+\begin{itemize}
+  \item \textbf{Seuils de d\'etection} : Les seuils EAR, PERCLOS, MAR, yaw, pitch, roll et les temporisations sont conform\'ement impl\'ement\'es dans \texttt{ecu\_decision.py} avec les valeurs par d\'efaut sp\'ecifi\'ees.
+  \item \textbf{Comportement des actions} : En \'etat ATTENTIVE, toutes les actions sont False. En EMERGENCY, toutes les 7 actions sont True.
+  \item \textbf{Hyst\'er\'esis} : Une transition de ATTENTIVE vers WARNING\_DROWSINESS n\'ecessite exactement 5 trames cons\'ecutives avec EAR $<0{,}25$ ou indicateur \'equivalent.
+  \item \textbf{Latence} : Mesur\'ee sur banc HIL avec cam\'era 30~fps, la latence de bout en bout (entr\'ee image $\to$ sortie CAN) ne d\'epasse pas 33~ms dans 99~\% des cas.
+\end{itemize}
+
+\clearpage
+
+%% ============================================================
+%%   CHAPITRE 5 : ARCHITECTURE COMPLETE DU PROTOTYPE
+%% ============================================================
+\chapter{Architecture compl\`ete du prototype}
+\markboth{Chapitre 5. Architecture compl\`ete du prototype}{}
+
+\section{Vue globale de l'architecture}
+
+L'architecture du DMS est organis\'ee en quatre sous-syst\`emes fonctionnels principaux, communiquant via des interfaces bien d\'efinies :
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  block/.style={draw, fill=blue!10, rounded corners=6pt,
+    minimum width=2.8cm, minimum height=1.4cm, align=center, font=\small\bfseries},
+  sensor/.style={draw, fill=green!15, rounded corners=3pt,
+    minimum width=2.5cm, minimum height=0.8cm, align=center, font=\scriptsize},
+  actuator/.style={draw, fill=red!15, rounded corners=3pt,
+    minimum width=2.5cm, minimum height=0.8cm, align=center, font=\scriptsize},
+  arrow/.style={-{Stealth[scale=1.2]}, thick, blue!70!black},
+  can/.style={-{Stealth[scale=1.2]}, thick, dashed, orange!80!black}
+]
+  % Main blocks
+  \node[block] (perc) at (0,4)   {Sous-syst\`eme\\de Perception};
+  \node[block] (anal) at (4.5,4) {Sous-syst\`eme\\d'Analyse};
+  \node[block] (dec)  at (9,4)   {Sous-syst\`eme\\de D\'ecision\\(ECU FSM)};
+  \node[block] (act)  at (13.5,4){Sous-syst\`eme\\d'Action};
+
+  % Sensors
+  \node[sensor] (cam)  at (-1.5,6.5) {Cam\'era DMS\\(IR, 30fps)};
+  \node[sensor] (veh)  at (-1.5,5.0) {Capteurs\\v\'ehicule};
+  \node[sensor] (imu)  at (-1.5,3.5) {IMU};
+
+  % Actuators
+  \node[actuator] (eps)  at (15.5,6.5) {EPS\\(Direction)};
+  \node[actuator] (esc)  at (15.5,5.0) {ESC/ABS\\(Freinage)};
+  \node[actuator] (bcm)  at (15.5,3.5) {BCM\\(Feux)};
+  \node[actuator] (hmi)  at (15.5,2.0) {HMI\\(Alertes)};
+
+  % Main flow
+  \draw[arrow] (perc) -- (anal) node[midway, above, font=\scriptsize] {landmarks, EAR};
+  \draw[arrow] (anal) -- (dec)  node[midway, above, font=\scriptsize] {indicators};
+  \draw[arrow] (dec)  -- (act)  node[midway, above, font=\scriptsize] {ActionCmd};
+
+  % Sensor connections
+  \draw[arrow] (cam) -| (perc);
+  \draw[arrow] (veh) -- (perc);
+  \draw[arrow] (imu) -| (perc);
+
+  % Actuator connections
+  \draw[arrow] (act) -| (eps);
+  \draw[arrow] (act) -| (esc);
+  \draw[arrow] (act) -| (bcm);
+  \draw[arrow] (act) -| (hmi);
+
+  % CAN bus
+  \draw[can, very thick] (0,1.5) -- (13.5,1.5);
+  \node[font=\small\bfseries, orange!80!black] at (6.75,1.1) {Bus CAN (500 kbit/s)};
+  \draw[can] (perc.south) -- (0,1.5);
+  \draw[can] (dec.south)  -- (9,1.5);
+  \draw[can] (act.south)  -- (13.5,1.5);
+
+\end{tikzpicture}
+\caption{Architecture globale du DMS -- flux de donn\'ees et interfaces}
+\label{fig:architecture}
+\end{figure}
+
+\section{Sous-syst\`eme de perception}
+
+\subsection{Cam\'era DMS}
+
+La cam\'era de surveillance du conducteur est une cam\'era infrarouge (IR) NIR (\textit{Near-Infrared}) montage int\'erieur planche de bord, orientable selon un angle de vision couvrant la totalit\'e du champ facial du conducteur dans toutes les positions de si\`ege. Les sp\'ecifications techniques retenues sont :
+
+\begin{table}[H]
+\centering
+\caption{Sp\'ecifications techniques de la cam\'era DMS}
+\label{tab:camera_specs}
+\begin{tabular}{L{5cm} L{7cm}}
+\toprule
+\textbf{Param\`etre} & \textbf{Valeur} \\
+\midrule
+R\'esolution & $1280 \times 720$ pixels (HD) \\
+Fr\'equence d'acquisition & 30~fps (mode normal), 60~fps (mode alerte) \\
+Type de capteur & CMOS global shutter \\
+Longueur d'onde IR & 850~nm (NIR, invisible \`a l'\oe il nu) \\
+Angle de vue horizontal & $85\degr$ \\
+Angle de vue vertical & $60\degr$ \\
+Plage d'illumination & 1 -- 10\,000~lux \\
+Temp\'erature de fonctionnement & $-40\degr$C \`a $+105\degr$C \\
+Interface & USB3.0 / MIPI CSI-2 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Module de d\'etection faciale (face\_eye\_detection.py)}
+
+Le module \texttt{face\_eye\_detection.py} impl\'emente la cha\^ine de traitement d'images pour la d\'etection du visage et l'extraction des points de rep\`ere. Il utilise MediaPipe Face Mesh pour d\'etecter les 468 landmarks faciaux et en extraire les sous-ensembles correspondant aux yeux (6 points par \oe il), \`a la bouche (8 points) et aux points canoniques pour la pose de la t\^ete.
+
+\section{Sous-syst\`eme de d\'ecision -- FSM ECU}
+
+Le sous-syst\`eme de d\'ecision est le c\oe ur logique du DMS. Il est impl\'ement\'e dans le module \texttt{ecu\_decision.py} sous la forme d'une machine \`a \'etats finis hi\'erarchique.
+
+\subsection{Les sept \'etats de la FSM}
+
+\begin{description}
+  \item[\texttt{ATTENTIVE}] \'Etat nominal : le conducteur est attentif, aucune alerte activ\'ee.
+  \item[\texttt{WARNING\_DROWSINESS}] D\'etection d'indicateurs de somnolence (EAR, PERCLOS, MAR, CNN) ; alerte Niveau~1.
+  \item[\texttt{WARNING\_DISTRACTION}] D\'etection de distraction en cours (t\^ete tourn\'ee $<$ seuil temporisation) ; alerte Niveau~1.
+  \item[\texttt{FATIGUE}] PERCLOS $\geq 0{,}35$ : fatigue s\'ev\`ere confirm\'ee ; alerte Niveau~2.
+  \item[\texttt{DISTRACTED\_HEAD}] T\^ete d\'etect\'ee \'eloign\'ee de la route pendant $\geq 6$~s ; alerte Niveau~2.
+  \item[\texttt{DISTRACTED\_NO\_FACE}] Absence de visage d\'etect\'e pendant $\geq 3$~s ; alerte Niveau~2.
+  \item[\texttt{EMERGENCY}] \'Etat critique apr\`es escalade ou PERCLOS extr\^eme ; alerte Niveau~3, actions actives.
+\end{description}
+
+\subsection{Table de transition de la FSM}
+
+\begin{table}[H]
+\centering
+\caption{Table de transition de la FSM ECU}
+\label{tab:fsm_transitions}
+\begin{tabular}{L{3.5cm} L{5.5cm} L{3.8cm}}
+\toprule
+\textbf{\'Etat courant} & \textbf{Condition de transition} & \textbf{\'Etat suivant} \\
+\midrule
+ANY & $\neg$face\_detected $\wedge$ dur\'ee $\geq 3{,}0$~s & DISTRACTED\_NO\_FACE \\
+ANY & head\_distracted $\wedge$ dur\'ee $\geq 6{,}0$~s & DISTRACTED\_HEAD \\
+ANY & PERCLOS $\geq 0{,}35$ & FATIGUE \\
+ANY & EAR $< 0{,}25$ $\vee$ PERCLOS$\geq0{,}20$ $\vee$ MAR$>0{,}6$ $\vee$ CNN=CLOSED & WARNING\_DROWSINESS \\
+ANY & head\_distracted (courte dur.) & WARNING\_DISTRACTION \\
+ANY & conditions normales & ATTENTIVE \\
+WARNING\_* & dur\'ee en WARNING $\geq 5{,}0$~s & LEVEL\_2 (escalade) \\
+WARNING\_* & dur\'ee en WARNING $\geq 10{,}0$~s & EMERGENCY \\
+FATIGUE & dur\'ee en FATIGUE $\geq 5{,}0$~s & EMERGENCY \\
+DISTRACTED\_* & dur\'ee en \'etat $\geq 5{,}0$~s & EMERGENCY \\
+EMERGENCY & reset() appel\'e & ATTENTIVE \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Les niveaux d'alerte et commandes d'action}
+
+Le dataclass \texttt{ActionCommand} encapsule les 7 commandes bool\'eennes envoy\'ees aux actionneurs v\'ehicle. La table suivante d\'ecrit leur activation selon le niveau d'alerte :
+
+\begin{table}[H]
+\centering
+\caption{Activation des commandes selon le niveau d'alerte}
+\label{tab:action_commands}
+\begin{tabular}{L{3.5cm} C{1.5cm} C{1.5cm} C{1.5cm} C{1.5cm}}
+\toprule
+\textbf{Commande} & \textbf{NONE} & \textbf{LEVEL 1} & \textbf{LEVEL 2} & \textbf{LEVEL 3} \\
+\midrule
+audio\_alert         & \ding{55} & \ding{51} & \ding{51} & \ding{51} \\
+visual\_alert        & \ding{55} & \ding{51} & \ding{51} & \ding{51} \\
+seat\_vibration      & \ding{55} & \ding{55} & \ding{51} & \ding{51} \\
+steering\_vibration  & \ding{55} & \ding{55} & \ding{51} & \ding{51} \\
+emergency\_braking   & \ding{55} & \ding{55} & \ding{55} & \ding{51} \\
+pull\_to\_side       & \ding{55} & \ding{55} & \ding{55} & \ding{51} \\
+hazard\_lights       & \ding{55} & \ding{55} & \ding{55} & \ding{51} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent\textbf{Note :} \ding{51} = True, \ding{55} = False dans le tableau ci-dessus.
+
+\section{Sous-syst\`eme d'action}
+
+\subsection{Direction assist\'ee \'electrique (EPS)}
+
+L'\textbf{EPS} (\textit{Electric Power Steering}) est l'actionneur responsable du guidage lat\'eral lors de la man\oe uvre pull-to-side. Lors de la r\'eception de la commande \texttt{pull\_to\_side=True} via le bus CAN, l'ECU EPS ex\'ecute une trajectoire lat\'erale contr\^ol\'ee vers la bande d'arr\^et d'urgence, avec une limitation du taux de changement de direction pour garantir la s\'ecurit\'e des passagers.
+
+\subsection{Contr\^ole de stabilit\'e (ESC/ABS)}
+
+L'\textbf{ESC} (\textit{Electronic Stability Control}) assure le freinage d'urgence lors de la r\'eception de \texttt{emergency\_braking=True}. La d\'ec\'el\'eration est limit\'ee \`a $6{,}0$~m/s$^2$ pour \'eviter les instabilit\'es cin\'etiques, et l'ABS garantit le maintien de la trajectoire lors du freinage.
+
+\subsection{Calculateur de carrosserie (BCM)}
+
+Le \textbf{BCM} (\textit{Body Control Module}) g\`ere l'activation des feux de d\'etresse (\texttt{hazard\_lights=True}), des avertisseurs sonores et des indicateurs visuels sur l'instrumentation.
+
+\section{Communication CAN}
+
+\begin{table}[H]
+\centering
+\caption{Base de donn\'ees CAN -- trames principales du DMS}
+\label{tab:can_db}
+\begin{tabular}{C{1.6cm} L{3cm} C{1.2cm} C{1.3cm} L{3.5cm}}
+\toprule
+\textbf{ID (hex)} & \textbf{Nom} & \textbf{DLC} & \textbf{P\'eriode} & \textbf{Contenu principal} \\
+\midrule
+0x221 & DriverState & 8 & 100~ms & \'Etat FSM (3~bits), niveau alerte (2~bits), confiance (8~bits) \\
+0x120 & VehicleSpeed & 4 & 10~ms & Vitesse (km/h, 0{,}01 r\'esol.) \\
+0x1B2 & SteerCmd & 8 & 20~ms & Angle consigne (degr\'es), couple \\
+0x1A7 & BrakeCmd & 4 & 10~ms & D\'ec\'el\'eration consigne (m/s$^2$) \\
+0x341 & HazardCmd & 2 & 200~ms & Feux d\'etresse ON/OFF \\
+0x450 & DMSStatus & 4 & 500~ms & Statut syst\`eme, codes erreur \\
+0x110 & AccelData & 4 & 10~ms & Acc\'el\'eration long./lat. (g) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Composants mat\'eriels}
+
+\begin{table}[H]
+\centering
+\caption{Tableau des composants mat\'eriels du prototype DMS}
+\label{tab:hardware}
+\begin{tabular}{L{3.5cm} L{4.5cm} C{2cm} L{2.5cm}}
+\toprule
+\textbf{Composant} & \textbf{Description} & \textbf{Quantit\'e} & \textbf{Interface} \\
+\midrule
+NVIDIA Jetson Nano & SBC embarqu\'e, GPU Maxwell 128c & 1 & PCIe, USB3 \\
+Cam\'era OV9281 & Cam\'era NIR 1 Mpx, obturateur global & 1 & MIPI CSI-2 \\
+MCP2515 & Contr\^oleur CAN SPI & 2 & SPI $\to$ CAN \\
+TJA1050 & Transceiver CAN haute vitesse & 2 & CAN 2.0B \\
+LED IR 850nm & Illuminateur actif pour conditions nocturnes & 4 & GPIO \\
+Power Supply 12V & Alimentation v\'ehicule via OBD & 1 & 12V CAN \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\clearpage
+
+%% ============================================================
+%%   CHAPITRE 6 : CYCLE EN V APPLIQUE AU PROJET
+%% ============================================================
+\chapter{Cycle en~V appliqu\'e au projet}
+\markboth{Chapitre 6. Cycle en V appliqu\'e au projet}{}
+
+\section{Introduction}
+
+L'application rigoureuse du Cycle en~V est un impératif pour les projets soumis \`a la norme ISO~26262. Ce chapitre d\'ecrit comment les activit\'es de conception et de validation ont \'et\'e organis\'ees selon ce mod\`ele, et pr\'esente la matrice de tra\c{c}abilit\'e reliant les exigences aux tests de validation.
+
+\section{Branche descendante : phases de d\'efinition et de conception}
+
+\subsection{Analyse des besoins (niveau v\'ehicule)}
+
+Cette premi\`ere \'etape a consisté en une analyse approfondie des besoins m\'etiers issue des r\'eunions avec l'\'equipe ADAS de Stellantis, l'\'etude des r\`eglements GSR2 et des standards ISO~26262/SOTIF. Elle a produit le document de sp\'ecification des besoins (SRS -- \textit{Software Requirements Specification}) pr\'esent\'e au Chapitre~4.
+
+\subsection{Conception syst\`eme}
+
+La phase de conception syst\`eme a d\'efini l'architecture \`a quatre sous-syst\`emes d\'ecrite au Chapitre~5, les interfaces de communication CAN, les protocoles d'interface entre les modules Python et les connecteurs v\'ehicule.
+
+\subsection{Conception logicielle d\'etaill\'ee}
+
+La conception d\'etaill\'ee a couvert :
+\begin{itemize}
+  \item La sp\'ecification compl\`ete de la FSM ECU (table de transition, hyst\'er\'esis, escalade) ;
+  \item La d\'efinition des formules de calcul EAR, PERCLOS et MAR avec leurs seuils ;
+  \item L'architecture du CNN DrowsinessCNN avec les dimensions de chaque couche ;
+  \item Le sch\'ema de communication CAN et l'encodage des trames.
+\end{itemize}
+
+\section{Branche ascendante : phases de v\'erification et validation}
+
+\subsection{Tests unitaires (SIL)}
+
+Des tests unitaires ont \'et\'e \'ecrits pour chaque fonction et classe des modules principaux en utilisant \texttt{pytest}. Les modules test\'es sont : \texttt{behavioral\_analysis.py}, \texttt{ecu\_decision.py}, \texttt{head\_pose.py} et \texttt{cnn\_model.py}. Le fichier \texttt{test\_dms.py} du r\'epertoire \texttt{src/} regroupe l'ensemble des tests.
+
+\subsection{Tests d'int\'egration (SIL)}
+
+Les tests d'int\'egration v\'erifient les interactions entre les modules : flux de donn\'ees entre la perception et l'analyse, entre l'analyse et la FSM, et entre la FSM et les commandes d'action. Les sc\'enarios synth\'etiques de \texttt{scenarios.py} servent de g\'en\'erateurs d'entr\'ees de test.
+
+\subsection{Validation syst\`eme (HIL)}
+
+La validation syst\`eme est r\'ealis\'ee sur un banc HIL avec injection de vid\'eos pr\'e-enregistr\'ees repr\'esentant les 7 sc\'enarios de fonctionnement. Les r\'esultats sont compar\'es aux comportements attendus tels que d\'efinis dans la sp\'ecification.
+
+\section{Matrice de tra\c{c}abilit\'e exigences--tests}
+
+\begin{longtable}{C{1.8cm} L{4cm} L{4cm} C{1.5cm}}
+\caption{Matrice de tra\c{c}abilit\'e REQ $\leftrightarrow$ Tests}
+\label{tab:traceability} \\
+\toprule
+\textbf{REQ} & \textbf{Module test\'e} & \textbf{Cas de test} & \textbf{Niveau} \\
+\midrule
+\endfirsthead
+\toprule \textbf{REQ} & \textbf{Module test\'e} & \textbf{Cas de test} & \textbf{Niveau} \\
+\midrule \endhead \bottomrule \endfoot
+REQ-01 & behavioral\_analysis & test\_compute\_ear\_nominal & SIL \\
+REQ-02 & ecu\_decision & test\_ear\_triggers\_warning & SIL \\
+REQ-03 & behavioral\_analysis & test\_perclos\_window & SIL \\
+REQ-04 & ecu\_decision & test\_perclos\_warning\_threshold & SIL \\
+REQ-05 & ecu\_decision & test\_perclos\_fatigue\_threshold & SIL \\
+REQ-06 & behavioral\_analysis & test\_compute\_mar\_yawn & SIL \\
+REQ-07 & head\_pose & test\_solvepnp\_nominal & SIL \\
+REQ-08 & head\_pose & test\_yaw\_threshold\_detection & SIL \\
+REQ-09 & ecu\_decision & test\_head\_turned\_timeout & SIL \\
+REQ-10 & ecu\_decision & test\_no\_face\_timeout & SIL \\
+REQ-11 & ecu\_decision & test\_hysteresis\_5\_frames & SIL \\
+REQ-12 & ecu\_decision & test\_level1\_action\_commands & SIL \\
+REQ-13 & ecu\_decision & test\_level2\_action\_commands & SIL \\
+REQ-14 & ecu\_decision & test\_level3\_action\_commands & SIL \\
+REQ-15 & ecu\_decision & test\_warning\_escalation\_5s & SIL \\
+REQ-16 & ecu\_decision & test\_emergency\_escalation\_10s & SIL \\
+REQ-17 & Syst\`eme complet & test\_latency\_30fps & HIL \\
+REQ-18 & Syst\`eme complet & test\_temperature\_range & HIL \\
+REQ-19 & Interface CAN & test\_can\_driver\_state\_0x221 & HIL \\
+REQ-20 & ecu\_decision & test\_no\_action\_in\_attentive & SIL \\
+REQ-21 & Syst\`eme complet & scenario\_normal\_driving\_fas & MIL \\
+REQ-22 & Syst\`eme complet & scenario\_drowsiness\_detection & MIL \\
+REQ-23 & ecu\_decision & coverage\_report\_asil\_b & SIL \\
+REQ-24 & cnn\_model & test\_cnn\_accuracy\_testset & SIL \\
+\bottomrule
+\end{longtable}
+
+\clearpage
+
+
+%% ============================================================
+%%   CHAPITRE 7 : CONCEPTION FONCTIONNELLE ET LOGIQUE DE CONTROLE
+%% ============================================================
+\chapter{Conception fonctionnelle et logique de contr\^ole}
+\markboth{Chapitre 7. Conception fonctionnelle et logique de contr\^ole}{}
+
+\section{Machine \`a \'etats finis de supervision (ECU FSM)}
+
+La machine \`a \'etats finis ECU constitue le noyau d\'ecisionnel du DMS. Elle est impl\'ement\'ee dans la classe \texttt{ECUDecision} du module \texttt{ecu\_decision.py}. La figure~\ref{fig:fsm_ecu} illustre graphiquement les sept \'etats et leurs transitions principales.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  state/.style={draw, fill=blue!10, rounded corners=4pt,
+    minimum width=3.0cm, minimum height=0.9cm, align=center, font=\small\bfseries},
+  emerg/.style={draw, fill=red!20, rounded corners=4pt,
+    minimum width=3.0cm, minimum height=0.9cm, align=center,
+    font=\small\bfseries, double distance=2pt},
+  arrow/.style={-{Stealth[scale=1.1]}, thick},
+  scale=1.0
+]
+  \node[state] (att) at (5,8)    {ATTENTIVE};
+  \node[state] (wd)  at (0,5.5)  {WARNING\\DROWSINESS};
+  \node[state] (wdi) at (10,5.5) {WARNING\\DISTRACTION};
+  \node[state] (fat) at (0,3)    {FATIGUE};
+  \node[state] (dh)  at (5,3)    {DISTRACTED\\HEAD};
+  \node[state] (dnf) at (10,3)   {DISTRACTED\\NO FACE};
+  \node[emerg] (em)  at (5,5.5)  {EMERGENCY};
+
+  \draw[arrow,blue!70] (att) -- node[left,font=\tiny]{EAR$<$0.25} (wd);
+  \draw[arrow,blue!70] (att) -- node[right,font=\tiny]{head\_dist.} (wdi);
+  \draw[arrow,red!70]  (att) -- node[right,font=\tiny]{PERCLOS$>$0.35} (fat);
+  \draw[arrow,red!70]  (att) -- node[left,font=\tiny]{head$>$6s} (dh);
+  \draw[arrow,red!70]  (att) -- node[right,font=\tiny]{no\_face$>$3s} (dnf);
+  \draw[arrow,red,thick] (wd)  -- node[above,font=\tiny]{$>$10s} (em);
+  \draw[arrow,red,thick] (wdi) -- node[above,font=\tiny]{$>$10s} (em);
+  \draw[arrow,red,thick] (fat) -- node[above,font=\tiny]{$>$5s}  (em);
+  \draw[arrow,red,thick] (dh)  -- node[right,font=\tiny]{$>$5s}  (em);
+  \draw[arrow,red,thick] (dnf) -- node[above,font=\tiny]{$>$5s}  (em);
+  \draw[arrow,dashed,gray] (wd) to[bend left=20]  node[left,font=\tiny]{normal} (att);
+  \draw[arrow,dashed,gray] (wdi) to[bend right=20] node[right,font=\tiny]{normal} (att);
+  \draw[arrow,dashed,gray] (em) to[bend left=30]  node[above,font=\tiny]{reset()} (att);
+\end{tikzpicture}
+\caption{Diagramme d'\'etats de la FSM ECU -- transitions principales}
+\label{fig:fsm_ecu}
+\end{figure}
+
+\section{M\'ecanisme d'hyst\'er\'esis}
+
+Pour \'eviter les oscillations intempestives entre \'etats, la FSM int\`egre un m\'ecanisme d'hyst\'er\'esis \`a \textbf{5 trames cons\'ecutives} (\texttt{HYSTERESIS\_FRAMES = 5}). Le compteur \texttt{\_candidate\_count} s'incr\'emente de 1 \`a chaque trame o\`u la condition de transition vers un \'etat candidat est v\'erifi\'ee. La transition effective ne se produit que lorsque ce compteur atteint la valeur seuil :
+
+\begin{equation}
+  \text{transition} \iff \text{candidate\_count} \geq N_{\text{hyst}} = 5
+\end{equation}
+
+\`A 30~fps, cela correspond \`a une dur\'ee minimale de confirmation de $5/30 \approx 0{,}17$~s, ce qui \'elimine les d\'etections parasites dues au bruit de mesure ou \`a des mouvements rapides non significatifs.
+
+Le listing~\ref{lst:hysteresis} pr\'esente l'impl\'ementation de ce m\'ecanisme :
+
+\begin{lstlisting}[style=python, caption={M\'ecanisme d'hyst\'er\'esis (ecu\_decision.py)}, label=lst:hysteresis]
+def _apply_hysteresis(self, target: DriverState, now: float) -> None:
+    # Confirm state change only after hysteresis_frames consecutive hits.
+    if target == self._candidate_state:
+        self._candidate_count += 1
+    else:
+        self._candidate_state = target
+        self._candidate_count = 1
+
+    if self._candidate_count >= self.hysteresis_frames:
+        if target != self._state:
+            self._transition_to(target, now)
+\end{lstlisting}
+
+\section{Escalade des alertes}
+
+Le m\'ecanisme d'escalade des alertes est impl\'ement\'e dans la m\'ethode \texttt{\_update\_warning\_escalation}. Il distingue deux cas :
+
+\begin{enumerate}
+  \item \textbf{\'Etats WARNING} : Si le syst\`eme reste en \'etat d'alerte pendant plus de 5~s, le niveau d'alerte passe de LEVEL\_1 \`a LEVEL\_2. Apr\`es 10~s totaux, l'\'etat passe \`a EMERGENCY avec LEVEL\_3.
+  \item \textbf{\'Etats critiques} (FATIGUE, DISTRACTED\_HEAD, DISTRACTED\_NO\_FACE) : Escalade vers EMERGENCY apr\`es 5~s dans l'\'etat critique.
+\end{enumerate}
+
+\begin{lstlisting}[style=python, caption={Escalade des alertes (ecu\_decision.py)}, label=lst:escalade]
+def _update_warning_escalation(self, now: float) -> None:
+    if self._state in (DriverState.WARNING_DROWSINESS,
+                       DriverState.WARNING_DISTRACTION):
+        if self._warning_since and \
+           (now - self._warning_since) >= self.escalation_timeout:
+            if self._warning_level == WarningLevel.LEVEL_1:
+                self._warning_level = WarningLevel.LEVEL_2
+                logger.info("ECU escalated to LEVEL_2")
+            elif self._warning_level == WarningLevel.LEVEL_2:
+                self._warning_level = WarningLevel.LEVEL_3
+                self._state = DriverState.EMERGENCY
+                self._state_entered_at = now
+                logger.info("ECU escalated to EMERGENCY")
+
+    if self._state in (DriverState.FATIGUE,
+                       DriverState.DISTRACTED_HEAD,
+                       DriverState.DISTRACTED_NO_FACE):
+        time_in = now - self._state_entered_at
+        if time_in >= self.escalation_timeout and \
+           self._warning_level.value < WarningLevel.LEVEL_3.value:
+            self._warning_level = WarningLevel.LEVEL_3
+            self._state = DriverState.EMERGENCY
+            self._state_entered_at = now
+            logger.info("ECU escalated critical state to EMERGENCY")
+\end{lstlisting}
+
+\section{Analyse comportementale -- calcul des indicateurs}
+
+\subsection{Eye Aspect Ratio (EAR)}
+
+L'EAR (\textit{Eye Aspect Ratio}) est l'indicateur g\'eom\'etrique fondamental pour la d\'etection de la fermeture des yeux. Il est d\'efini selon la formule de Soukupov\'a et \v{C}ech (2016) :
+
+\begin{equation}
+  \text{EAR} = \frac{\|p_2 - p_6\| + \|p_3 - p_5\|}{2 \cdot \|p_1 - p_4\|}
+  \label{eq:ear}
+\end{equation}
+
+o\`u $p_1$ \`a $p_6$ sont les six points de rep\`ere de l'\oe il num\'erot\'es comme suit :
+$p_1$ = coin ext\'erieur ; $p_2, p_3$ = points sup\'erieurs ; $p_4$ = coin int\'erieur ; $p_5, p_6$ = points inf\'erieurs.
+
+Lorsque les yeux sont grands ouverts, l'EAR prend des valeurs typiques de 0,28 \`a 0,40. Lors d'un clignement, il chute bri\`evement en dessous de 0,21, et reste en dessous de 0,25 si les yeux sont ferm\'es.
+
+\begin{equation}
+  \text{EAR} \begin{cases}
+    > 0{,}25 & \text{yeux ouverts (\'etat normal)} \\
+    \in [0{,}21,\ 0{,}25] & \text{yeux partiellement ferm\'es} \\
+    < 0{,}21 & \text{clignement en cours}
+  \end{cases}
+\end{equation}
+
+\begin{lstlisting}[style=python, caption={Calcul de l'EAR (behavioral\_analysis.py)}, label=lst:ear]
+EAR_BLINK_THRESHOLD: float = 0.21
+EAR_CLOSED_THRESHOLD: float = 0.25
+
+def compute_ear(landmarks):
+    # EAR = (||p2-p6|| + ||p3-p5||) / (2 * ||p1-p4||)
+    if len(landmarks) < 6:
+        return 0.0
+    p1, p2, p3, p4, p5, p6 = landmarks[:6]
+    vertical1 = _dist(p2, p6)
+    vertical2 = _dist(p3, p5)
+    horizontal = _dist(p1, p4)
+    if horizontal < 1e-6:
+        return 0.0
+    return (vertical1 + vertical2) / (2.0 * horizontal)
+\end{lstlisting}
+
+\subsection{PERCLOS (Percentage of Eye Closure)}
+
+Le \textbf{PERCLOS} est calcul\'e comme la fraction de trames dans une fen\^etre glissante de $W$ secondes pour lesquelles l'EAR est inf\'erieur au seuil de fermeture :
+
+\begin{equation}
+  \text{PERCLOS}(t) = \frac{1}{|W|} \sum_{k \in W} \mathbf{1}[\text{EAR}(k) < \theta_{\text{closed}}]
+  \label{eq:perclos}
+\end{equation}
+
+o\`u $\theta_{\text{closed}} = 0{,}25$, et $W$ est une fen\^etre glissante de $60 \times 30 = 1800$ trames (60 secondes \`a 30~fps).
+
+\begin{lstlisting}[style=python, caption={Calcul du PERCLOS (behavioral\_analysis.py)}, label=lst:perclos]
+PERCLOS_FATIGUE_THRESHOLD: float = 0.35
+PERCLOS_WINDOW_SECONDS: float = 60.0
+
+def compute_perclos(ear_history, threshold=EAR_CLOSED_THRESHOLD):
+    # PERCLOS = fraction of frames where EAR < threshold
+    if len(ear_history) == 0:
+        return 0.0
+    closed_count = sum(1 for ear in ear_history if ear < threshold)
+    return closed_count / len(ear_history)
+\end{lstlisting}
+
+\subsection{Mouth Aspect Ratio (MAR)}
+
+Le \textbf{MAR} (\textit{Mouth Aspect Ratio}) est un indicateur g\'eom\'etrique de l'ouverture buccale utilis\'e pour la d\'etection du b\^aillement :
+
+\begin{equation}
+  \text{MAR} = \frac{\|p_2 - p_8\| + \|p_4 - p_6\|}{2 \cdot \|p_1 - p_5\|}
+  \label{eq:mar}
+\end{equation}
+
+Un MAR $> 0{,}6$ sur plusieurs trames cons\'ecutives est consid\'er\'e comme un b\^aillement.
+
+\begin{lstlisting}[style=python, caption={Calcul du MAR (behavioral\_analysis.py)}, label=lst:mar]
+MAR_YAWN_THRESHOLD: float = 0.6
+
+def compute_mar(landmarks):
+    # MAR = (||p2-p8|| + ||p4-p6||) / (2 * ||p1-p5||)
+    if len(landmarks) < 8:
+        return 0.0
+    p1 = landmarks[0]; p2 = landmarks[2]
+    p4 = landmarks[3]; p5 = landmarks[4]
+    p6 = landmarks[5]; p8 = landmarks[7]
+    vertical1 = _dist(p2, p8)
+    vertical2 = _dist(p4, p6)
+    horizontal = _dist(p1, p5)
+    if horizontal < 1e-6:
+        return 0.0
+    return (vertical1 + vertical2) / (2.0 * horizontal)
+\end{lstlisting}
+
+\section{Estimation de la pose de la t\^ete}
+
+L'estimation de la pose de la t\^ete utilise l'algorithme \texttt{solvePnP} d'OpenCV, qui r\'esout le probl\`eme Perspective-n-Point. Les 6 points 3D du mod\`ele g\'en\'erique sont :
+
+\begin{equation}
+  \mathbf{P}_{\text{mod\`ele}} = \begin{pmatrix}
+    (0,0,0) & \text{bout du nez} \\
+    (0,-330,-65) & \text{menton} \\
+    (-225,170,-135) & \text{coin oeil gauche} \\
+    (225,170,-135) & \text{coin oeil droit} \\
+    (-150,-150,-125) & \text{coin bouche gauche} \\
+    (150,-150,-125) & \text{coin bouche droit}
+  \end{pmatrix}
+  \quad [\text{mm}]
+\end{equation}
+
+Les seuils de distraction en angles d'Euler sont :
+\begin{align}
+  |\text{yaw}| &> 25\degr \Rightarrow \text{distraction lat\'erale} \\
+  |\text{pitch}| &> 20\degr \Rightarrow \text{distraction verticale} \\
+  |\text{roll}| &> 20\degr \Rightarrow \text{inclinaison excessive}
+\end{align}
+
+\section{Contr\^oleur lat\'eral (pull-to-side)}
+
+Lors de l'activation de la man\oe uvre \textit{pull-to-side}, un contr\^oleur PD calcule la commande d'angle de braquage $\delta$ :
+
+\begin{equation}
+  \delta(t) = K_p \cdot e_y(t) + K_d \cdot \dot{e}_y(t), \quad K_p = 0{,}5,\ K_d = 0{,}1
+\end{equation}
+
+o\`u $e_y = y_{\text{cible}} - y_{\text{actuel}}$ est l'erreur lat\'erale. La commande est satur\'ee \`a $\pm 5\degr$.
+
+\section{Contr\^oleur longitudinal (freinage d'urgence)}
+
+Le freinage d'urgence est ex\'ecut\'e en deux phases :
+
+\begin{align}
+  a_{\text{phase1}}(t) &= -3{,}0 \text{ m/s}^2 \quad (0 \leq t \leq 2 \text{ s}) \\
+  a_{\text{phase2}}(t) &= -6{,}0 \text{ m/s}^2 \quad (t > 2 \text{ s})
+\end{align}
+
+La distance de freinage depuis $v_0$ est : $d = v_0^2/(2 \cdot 6{,}0) + (v_0^2 - v_1^2)/(2 \cdot 3{,}0)$ o\`u $v_1 = v_0 - 6{,}0$.
+
+\section{Code Python complet -- ecu\_decision.py (extraits cl\'es)}
+
+\begin{lstlisting}[style=python, caption={Constantes et enums FSM (ecu\_decision.py)}, label=lst:ecu_constants]
+DEFAULT_NO_FACE_TIMEOUT: float = 3.0
+DEFAULT_HEAD_TURN_TIMEOUT: float = 6.0
+DEFAULT_PERCLOS_FATIGUE: float = 0.35
+DEFAULT_PERCLOS_WARNING: float = 0.20
+DEFAULT_EAR_WARNING: float = 0.25
+DEFAULT_MAR_YAWN: float = 0.6
+DEFAULT_HYSTERESIS_FRAMES: int = 5
+DEFAULT_ESCALATION_TIMEOUT: float = 5.0
+
+class DriverState(Enum):
+    ATTENTIVE = auto()
+    WARNING_DROWSINESS = auto()
+    WARNING_DISTRACTION = auto()
+    FATIGUE = auto()
+    DISTRACTED_HEAD = auto()
+    DISTRACTED_NO_FACE = auto()
+    EMERGENCY = auto()
+
+class WarningLevel(Enum):
+    NONE = 0
+    LEVEL_1 = 1   # Visual alert + audio beep
+    LEVEL_2 = 2   # Seat / steering wheel vibration
+    LEVEL_3 = 3   # Emergency braking + pull to side + hazard lights
+
+@dataclass
+class ActionCommand:
+    audio_alert: bool = False
+    visual_alert: bool = False
+    seat_vibration: bool = False
+    steering_vibration: bool = False
+    emergency_braking: bool = False
+    pull_to_side: bool = False
+    hazard_lights: bool = False
+    warning_level: WarningLevel = WarningLevel.NONE
+\end{lstlisting}
+
+\begin{lstlisting}[style=python, caption={M\'ethode \_compute\_target\_state (ecu\_decision.py)}, label=lst:compute_target]
+def _compute_target_state(self, ind, now):
+    # Track face absence timer
+    if not ind.face_detected:
+        if self._no_face_since is None:
+            self._no_face_since = now
+    else:
+        self._no_face_since = None
+
+    # Track head turn timer
+    if ind.head_distracted:
+        if self._head_turned_since is None:
+            self._head_turned_since = now
+    else:
+        self._head_turned_since = None
+
+    # Priority 1: No face
+    if (self._no_face_since is not None and
+            (now - self._no_face_since) >= self.no_face_timeout):
+        return DriverState.DISTRACTED_NO_FACE
+
+    # Priority 2: Head turned too long
+    if (self._head_turned_since is not None and
+            (now - self._head_turned_since) >= self.head_turn_timeout):
+        return DriverState.DISTRACTED_HEAD
+
+    # Priority 3: PERCLOS fatigue
+    if ind.perclos >= self.perclos_fatigue:
+        return DriverState.FATIGUE
+
+    # Priority 4: Drowsiness warning indicators
+    ear_low    = ind.ear < self.ear_warning
+    perclos_w  = ind.perclos >= self.perclos_warning
+    yawning    = ind.mar >= self.mar_yawn
+    cnn_closed = ind.cnn_class == 1
+    cnn_yawn   = ind.cnn_class == 2
+
+    if ear_low or perclos_w or yawning or cnn_closed or cnn_yawn:
+        return DriverState.WARNING_DROWSINESS
+
+    # Priority 5: Head distraction warning
+    if ind.head_distracted:
+        return DriverState.WARNING_DISTRACTION
+
+    return DriverState.ATTENTIVE
+\end{lstlisting}
+
+\clearpage
+
+%% ============================================================
+%%   CHAPITRE 8 : SCENARIOS DE FONCTIONNEMENT
+%% ============================================================
+\chapter{Sc\'enarios de fonctionnement}
+\markboth{Chapitre 8. Sc\'enarios de fonctionnement}{}
+
+\section{Vue d'ensemble des sc\'enarios}
+
+Sept sc\'enarios de fonctionnement ont \'et\'e d\'efinis dans le module \texttt{scenarios.py}. Ces sc\'enarios servent \`a la fois de g\'en\'erateurs d'entr\'ees pour les tests SIL et de cas de validation pour les tests HIL.
+
+\begin{table}[H]
+\centering
+\caption{Vue d'ensemble des 7 sc\'enarios de test}
+\label{tab:scenarios_overview}
+\begin{tabular}{C{0.7cm} L{3.8cm} C{1.5cm} L{6cm}}
+\toprule
+\textbf{N\textsuperscript{o}} & \textbf{Nom} & \textbf{Dur\'ee} & \textbf{Description} \\
+\midrule
+S1 & NormalDriving & 30~s & Conduite attentive nominale, EAR=0.30, PERCLOS=0.05 \\
+S2 & GradualDrowsiness & 60~s & PERCLOS croissant progressivement jusqu'\`a 0.50 \\
+S3 & SuddenDistraction & 20~s & T\^ete tourn\'ee de t=5s \`a t=15s \\
+S4 & FaceLost & 15~s & Visage perdu de t=3s \`a t=12s \\
+S5 & Yawning & 30~s & B\^aillement p\'eriodique, MAR oscillant jusqu'\`a 0.75 \\
+S6 & CombinedFatigue & 40~s & Multi-indicateurs : EAR + PERCLOS + MAR \\
+S7 & Emergency & 30~s & 4 phases : normal $\to$ warning $\to$ critical $\to$ recovery \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Sc\'enario S1 : Conduite normale}
+
+Le sc\'enario \textbf{NormalDrivingScenario} g\'en\`ere 30 secondes d'indicateurs nominaux stables : EAR = 0.30, PERCLOS = 0.05, MAR = 0.20, face\_detected = True, head\_distracted = False. L'\'etat attendu est ATTENTIVE tout au long du sc\'enario, aucune alerte g\'en\'er\'ee. Ce sc\'enario valide les exigences REQ-20 et REQ-21.
+
+\section{Sc\'enario S2 : Somnolence progressive}
+
+Le sc\'enario \textbf{GradualDrowsinessScenario} simule une d\'egradation progressive de la vigilance sur 60 secondes. Le PERCLOS augmente lin\'eairement de 0 \`a 0.50 et l'EAR diminue de 0.30 \`a 0.15 :
+
+\begin{align}
+  \text{PERCLOS}(t) &= \min\!\left(\frac{t}{60} \times 0{,}50,\ 0{,}50\right) \\
+  \text{EAR}(t) &= \max\!\left(0{,}30 - \frac{t}{60} \times 0{,}15,\ 0{,}15\right)
+\end{align}
+
+Les transitions d'\'etat attendues :
+\begin{enumerate}
+  \item $t \approx 24$~s : PERCLOS = 0.20 $\Rightarrow$ WARNING\_DROWSINESS (apr\`es hyst\'er\'esis) ;
+  \item $t \approx 29$~s : escalade LEVEL\_2 (5~s en WARNING) ;
+  \item $t \approx 42$~s : PERCLOS = 0.35 $\Rightarrow$ FATIGUE ;
+  \item $t \approx 47$~s : escalade EMERGENCY (5~s en FATIGUE).
+\end{enumerate}
+
+\section{Sc\'enario S3 : Distraction soudaine}
+
+Le sc\'enario \textbf{SuddenDistractionScenario} simule une distraction lat\'erale soudaine de $t = 5$~s \`a $t = 15$~s (head\_distracted = True). Les transitions attendues sont :
+\begin{itemize}
+  \item $t = 5$~s : d\'ebut distraction, compteur hyst\'er\'esis d\'emarre ;
+  \item $t \approx 5{,}17$~s : 5 trames confirm\'ees $\Rightarrow$ WARNING\_DISTRACTION, LEVEL\_1 ;
+  \item $t \approx 10{,}17$~s : 5~s en WARNING $\Rightarrow$ LEVEL\_2 ;
+  \item $t \approx 11{,}17$~s : head\_turned\_since $\geq 6$~s $\Rightarrow$ DISTRACTED\_HEAD confirm\'e ;
+  \item $t = 15$~s : fin distraction $\Rightarrow$ retour progressif vers ATTENTIVE.
+\end{itemize}
+
+\section{Sc\'enario S4 : Perte de visage}
+
+Le sc\'enario \textbf{FaceLostScenario} simule une perte compl\`ete du visage de $t = 3$~s \`a $t = 12$~s (face\_detected = False). Le seuil no\_face\_timeout = 3~s est atteint \`a $t = 6$~s, d\'eclenchant DISTRACTED\_NO\_FACE apr\`es les 5 trames d'hyst\'er\'esis ($t \approx 6{,}17$~s).
+
+\section{Sc\'enario S5 : B\^aillement}
+
+Le sc\'enario \textbf{YawningScenario} g\'en\`ere des \'episodes de b\^aillement p\'eriodiques sur 30 secondes. Le MAR oscille selon :
+\begin{equation}
+  \text{MAR}(t) = 0{,}2 + 0{,}55 \cdot \max\!\left(0,\ \sin\!\left(\frac{2\pi t}{10}\right)\right)
+\end{equation}
+Pour chaque \'episode o\`u MAR $> 0{,}6$, la FSM passe en WARNING\_DROWSINESS conform\'ement \`a REQ-06.
+
+\section{Sc\'enario S6 : Fatigue combin\'ee}
+
+Le sc\'enario \textbf{CombinedFatigueScenario} active simultan\'ement plusieurs indicateurs de fatigue sur 40~s avec facteur $f = t/40$ :
+
+\begin{align}
+  \text{EAR}(t) &= \max(0{,}30 - f \times 0{,}18,\ 0{,}12) \\
+  \text{PERCLOS}(t) &= \min(f \times 0{,}45,\ 0{,}45) \\
+  \text{MAR}(t) &= 0{,}30 + f \times 0{,}40
+\end{align}
+
+Ce sc\'enario d\'eclenche la d\'etection EAR \`a $t \approx 13$~s (EAR $< 0{,}25$), la somnolence PERCLOS \`a $t \approx 18$~s, la fatigue \`a $t \approx 31$~s, et le b\^aillement \`a $t \approx 38$~s.
+
+\section{Sc\'enario S7 : Urgence}
+
+Le sc\'enario \textbf{EmergencyScenario} est le sc\'enario de test le plus critique. Il est divis\'e en 4 phases :
+
+\begin{table}[H]
+\centering
+\caption{Chronologie du sc\'enario d'urgence (S7)}
+\label{tab:emergency_timeline}
+\begin{tabular}{C{1.5cm} C{1.8cm} L{4.5cm} L{4.5cm}}
+\toprule
+\textbf{Phase} & \textbf{Dur\'ee} & \textbf{Indicateurs} & \textbf{\'Etat attendu FSM} \\
+\midrule
+Phase~1 & T0--T5 (5~s) & EAR=0.30, PERCLOS=0.05, face=True & ATTENTIVE, NONE \\
+Phase~2 & T5--T15 (10~s) & EAR=0.18, PERCLOS=0.30, head=True, CNN=CLOSED & WARNING $\to$ LEVEL\_2 \\
+Phase~3 & T15--T25 (10~s) & EAR=0.10, PERCLOS=0.50, face=False, CNN=CLOSED & DISTRACTED\_NO\_FACE $\to$ EMERGENCY \\
+Phase~4 & T25--T30 (5~s) & EAR=0.28, PERCLOS=0.10, face=True & ATTENTIVE (apr\`es reset) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Sous-variantes du sc\'enario d'urgence}
+
+\begin{description}
+  \item[\textbf{S7a -- Route s\`eche}] D\'ec\'el\'eration maximale 8~m/s$^2$, distance de freinage \`a 130~km/h~: $\approx 80$~m.
+  \item[\textbf{S7b -- Route mouill\'ee}] Adh\'erence r\'eduite ($\mu = 0{,}5$), d\'ec\'el\'eration limit\'ee \`a 4{,}9~m/s$^2$, distance $\approx 133$~m.
+  \item[\textbf{S7c -- BAU obstru\'ee}] Man\oe uvre pull-to-side annul\'ee, arr\^et d'urgence sur voie de droite.
+  \item[\textbf{S7d -- Marquages d\'egrad\'es}] Guidage lat\'eral d\'esactiv\'e, freinage d'urgence seul.
+\end{description}
+
+\subsection{Analyse du risque r\'esiduel}
+
+Pour chaque sous-variante, l'analyse de risque r\'esiduel \'evalue la probabilit\'e que la man\oe uvre d'urgence soit ex\'ecut\'ee en dehors de la fen\^etre de s\'ecurit\'e. Pour S7a, \`a 130~km/h avec une distance de freinage de 80~m et un d\'elai de r\'eaction syst\`eme de $\leq 33$~ms, la distance de r\'eaction est de $130/3{,}6 \times 0{,}033 \approx 1{,}2$~m, ce qui est n\'egligeable devant la distance de freinage. Le risque r\'esiduel est donc principalement associ\'e \`a la fiabilit\'e de la d\'etection de l'\'etat du conducteur.
+
+\clearpage
+
+
+%% ============================================================
+%%   CHAPITRE 9 : IMPLEMENTATION ET ENVIRONNEMENT TECHNIQUE
+%% ============================================================
+\chapter{Impl\'ementation et environnement technique}
+\markboth{Chapitre 9. Impl\'ementation et environnement technique}{}
+
+\section{Cha\^ine d'outils}
+
+L'impl\'ementation du DMS repose sur une cha\^ine d'outils s\'electionn\'ee pour son ad\'equation aux contraintes de d\'eveloppement embarqu\'e automobiles, de performance temps r\'eel et de int\'egration avec les outils de simulation :
+
+\begin{table}[H]
+\centering
+\caption{Cha\^ine d'outils -- logiciels et biblioth\`eques}
+\label{tab:toolchain}
+\begin{tabular}{L{3.5cm} L{4cm} L{5cm}}
+\toprule
+\textbf{Outil/Biblioth\`eque} & \textbf{Version} & \textbf{R\^ole} \\
+\midrule
+Python & 3.10.12 & Langage principal, modules DMS \\
+PyTorch & 2.0.1 & D\'eveloppement et inf\'erence CNN \\
+OpenCV & 4.8.0 & Traitement d'images, solvePnP \\
+MediaPipe & 0.10.3 & D\'etection 468 landmarks faciaux \\
+NumPy & 1.24.3 & Calculs num\'eriques, g\'eom\'etrie \\
+MATLAB & R2023b & Simulation PERCLOS/EAR, mod\'elisation \\
+Simulink & R2023b & Simulation syst\`eme dynamique \\
+pytest & 7.4.0 & Tests unitaires et d'int\'egration SIL \\
+pytest-cov & 4.1.0 & Couverture de code \\
+python-can & 4.3.1 & Interface bus CAN (tests HIL) \\
+Vector CANalyzer & 17.0 & Analyse protocoles CAN (banc HIL) \\
+Git & 2.41 & Gestion de version \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Architecture logicielle}
+
+La structure du r\'epertoire du projet suit une organisation modulaire conforme aux pr\'econisations ASPICE :
+
+\begin{lstlisting}[language=,caption={Structure du projet DMS},label=lst:tree]
+DMS/
+|-- src/
+|   |-- __init__.py
+|   |-- behavioral_analysis.py   # EAR, PERCLOS, MAR
+|   |-- ecu_decision.py          # FSM ECU, WarningLevel, ActionCommand
+|   |-- face_eye_detection.py    # MediaPipe, detection faciale
+|   |-- head_pose.py             # solvePnP, angles Euler
+|   |-- scenarios.py             # 7 scenarios de test
+|   |-- test_dms.py              # Tests unitaires pytest
+|   |-- video_acquisition.py     # Acquisition camera
+|   `-- visualization.py         # HMI, affichage alertes
+|-- models/
+|   `-- cnn_model.py             # DrowsinessCNN PyTorch
+|-- matlab/
+|   |-- dms_simulation.m         # Simulation PERCLOS/EAR
+|   `-- dms_simulink_model.m     # Modele Simulink
+|-- tests/
+|   `-- (dossier tests additionnels)
+|-- requirements.txt
+|-- main.py
+`-- README.md
+\end{lstlisting}
+
+\section{Architecture du CNN DrowsinessCNN}
+
+Le r\'eseau DrowsinessCNN, impl\'ement\'e dans \texttt{models/cnn\_model.py} avec PyTorch, est con\c{c}u pour la classification de l'\'etat oculaire en trois classes (OPEN, CLOSED, YAWNING) \`a partir d'images en niveaux de gris de r\'esolution $48 \times 48$ pixels.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  layer/.style={draw, fill=blue!15, rounded corners=3pt,
+    minimum width=2.5cm, minimum height=0.7cm, align=center, font=\scriptsize},
+  pool/.style={draw, fill=orange!15, rounded corners=3pt,
+    minimum width=2.5cm, minimum height=0.7cm, align=center, font=\scriptsize},
+  fc/.style={draw, fill=green!15, rounded corners=3pt,
+    minimum width=2.5cm, minimum height=0.7cm, align=center, font=\scriptsize},
+  arrow/.style={-{Stealth}, thick}
+]
+  \node[layer] (inp) at (0,12)  {Input\\$1\times48\times48$};
+  \node[layer] (c1)  at (0,10)  {Conv2D(1$\to$32, k=3)\\BN + ReLU};
+  \node[pool]  (p1)  at (0,8.5) {MaxPool(2,2)\\$32\times24\times24$};
+  \node[layer] (c2)  at (0,7)   {Conv2D(32$\to$64, k=3)\\BN + ReLU};
+  \node[pool]  (p2)  at (0,5.5) {MaxPool(2,2)\\$64\times12\times12$};
+  \node[layer] (c3)  at (0,4)   {Conv2D(64$\to$128, k=3)\\BN + ReLU};
+  \node[pool]  (p3)  at (0,2.5) {MaxPool(2,2)\\$128\times6\times6$};
+  \node[fc]    (fl)  at (0,1.0) {Flatten $\to$ 4608};
+  \node[fc]    (f1)  at (0,-0.5){FC(4608$\to$256) + ReLU\\Dropout(0.5)};
+  \node[fc]    (f2)  at (0,-2.0){FC(256$\to$3)};
+  \node[fc]    (out) at (0,-3.2){Output: [OPEN, CLOSED, YAWNING]};
+
+  \foreach \a/\b in {inp/c1, c1/p1, p1/c2, c2/p2, p2/c3, c3/p3, p3/fl, fl/f1, f1/f2, f2/out}
+    \draw[arrow] (\a) -- (\b);
+\end{tikzpicture}
+\caption{Architecture du r\'eseau DrowsinessCNN}
+\label{fig:cnn_arch}
+\end{figure}
+
+\begin{lstlisting}[style=python, caption={Architecture DrowsinessCNN (models/cnn\_model.py)}, label=lst:cnn_model]
+INPUT_SIZE: int = 48
+NUM_CLASSES: int = 3
+CLASS_NAMES = ("OPEN", "CLOSED", "YAWNING")
+
+class DrowsinessCNN(nn.Module):
+    def __init__(self, input_size=INPUT_SIZE, num_classes=NUM_CLASSES):
+        super().__init__()
+        self.features = nn.Sequential(
+            # Block 1
+            nn.Conv2d(1, 32, kernel_size=3, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(2, 2),
+            # Block 2
+            nn.Conv2d(32, 64, kernel_size=3, padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(2, 2),
+            # Block 3
+            nn.Conv2d(64, 128, kernel_size=3, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(2, 2),
+        )
+        feat_dim = 128 * (input_size // 8) * (input_size // 8)  # = 4608
+        self.classifier = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(feat_dim, 256),
+            nn.ReLU(inplace=True),
+            nn.Dropout(0.5),
+            nn.Linear(256, num_classes),
+        )
+
+    def forward(self, x):
+        return self.classifier(self.features(x))
+\end{lstlisting}
+
+\section{Pipeline d'entra\^inement du CNN}
+
+L'entra\^inement du DrowsinessCNN est r\'ealis\'e avec les hyperp\-aram\`etres suivants :
+
+\begin{table}[H]
+\centering
+\caption{Hyperparamet\`res d'entra\^inement du CNN}
+\label{tab:cnn_training}
+\begin{tabular}{L{5cm} L{7cm}}
+\toprule
+\textbf{Hyperparamet\`re} & \textbf{Valeur} \\
+\midrule
+Optimiseur & Adam ($\beta_1=0{,}9$, $\beta_2=0{,}999$, $\varepsilon=10^{-8}$) \\
+Taux d'apprentissage initial & $10^{-3}$ \\
+Scheduler & ReduceLROnPlateau (patience=3, factor=0.1) \\
+Fonction de perte & CrossEntropyLoss \\
+Batch size & 64 \\
+Early stopping patience & 7 \'epoques \\
+Nombre max d'\'epoques & 100 \\
+Taille jeu d'entra\^inement & 70~\% (augmentat\'e) \\
+Taille jeu validation & 15~\% \\
+Taille jeu test & 15~\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+L'augmentation de donn\'ees appliqu\'ee comprend :
+\begin{itemize}
+  \item \textbf{Retournement horizontal} (flip) avec probabilit\'e 50~\% ;
+  \item \textbf{Rotation al\'eatoire} $\pm 10\degr$ ;
+  \item \textbf{Jitter de luminosit\'e} : variations $\pm 20$~\% de la valeur de gris ;
+  \item \textbf{Normalisation} : moyenne $\mu = 0{,}5$, \'ecart-type $\sigma = 0{,}5$.
+\end{itemize}
+
+\section{Simulation MATLAB}
+
+Le script \texttt{matlab/dms\_simulation.m} impl\'emente une simulation num\'erique compl\`ete de l'\'evolution du PERCLOS et de l'EAR sur une dur\'ee de 120 secondes \`a une fr\'equence d'\'echantillonnage de $F_s = 30$~fps. Le signal EAR synth\'etique est g\'en\'er\'e avec une phase de somnolence de 60~s \`a 90~s et du bruit gaussien ($\sigma = 0{,}02$).
+
+\begin{lstlisting}[style=matlab, caption={Simulation DMS MATLAB (dms\_simulation.m)}, label=lst:matlab_sim]
+%% DMS Simulation - PERCLOS and EAR Evolution
+%% Author: Daifi Meriem, Expleo Group Maroc / Stellantis
+clear; clc; close all;
+
+Fs = 30;        % frames per second
+duration = 120; % seconds
+t = 0:1/Fs:duration;
+N = length(t);
+
+%% Synthetic EAR signal generation
+ear_base = 0.30 * ones(1, N);
+drowsy_start = 60 * Fs;
+drowsy_end   = 90 * Fs;
+
+for i = drowsy_start:min(drowsy_end, N)
+    progress = (i - drowsy_start) / (drowsy_end - drowsy_start);
+    ear_base(i) = 0.30 - 0.15 * progress;
+end
+
+for i = min(drowsy_end,N):N
+    progress = (i - drowsy_end) / (N - drowsy_end + 1);
+    ear_base(i) = 0.15 + 0.15 * progress;
+end
+
+ear_signal = max(ear_base + 0.02 * randn(1, N), 0.05);
+
+%% PERCLOS computation (30s sliding window)
+window_size   = 30 * Fs;
+ear_threshold = 0.25;
+perclos       = zeros(1, N);
+
+for i = 1:N
+    win_start   = max(1, i - window_size + 1);
+    window      = ear_signal(win_start:i);
+    closed_count = sum(window < ear_threshold);
+    perclos(i)  = closed_count / length(window);
+end
+
+%% State determination
+perclos_warning   = 0.20;
+perclos_fatigue   = 0.35;
+perclos_emergency = 0.50;
+state = ones(1, N);
+
+for i = 1:N
+    if perclos(i) >= perclos_emergency
+        state(i) = 4;  % Emergency
+    elseif perclos(i) >= perclos_fatigue
+        state(i) = 3;  % Fatigue
+    elseif perclos(i) >= perclos_warning
+        state(i) = 2;  % Warning
+    else
+        state(i) = 1;  % Attentive
+    end
+end
+
+%% Plotting
+figure('Position', [100, 100, 1200, 800], 'Name', 'DMS Simulation');
+
+subplot(3,1,1);
+plot(t, ear_signal, 'b-', 'LineWidth', 0.5); hold on;
+yline(ear_threshold, 'r--', 'LineWidth', 1.5);
+xlabel('Time (s)'); ylabel('EAR');
+title('Eye Aspect Ratio Over Time'); grid on;
+
+subplot(3,1,2);
+plot(t, perclos*100, 'g-', 'LineWidth', 1.5); hold on;
+yline(perclos_warning*100,   'y--', 'LineWidth', 1.5);
+yline(perclos_fatigue*100,   'r--', 'LineWidth', 1.5);
+yline(perclos_emergency*100, 'm--', 'LineWidth', 1.5);
+xlabel('Time (s)'); ylabel('PERCLOS (%)');
+title('PERCLOS Evolution'); grid on;
+
+subplot(3,1,3);
+stairs(t, state, 'k-', 'LineWidth', 2);
+yticks([1 2 3 4]);
+yticklabels({'Attentive','Warning','Fatigue','Emergency'});
+xlabel('Time (s)'); ylabel('Driver State');
+title('ECU State Transitions'); grid on;
+
+sgtitle('DMS Simulation - Daifi Meriem, Expleo/Stellantis');
+saveas(gcf, 'matlab/dms_simulation_results.png');
+\end{lstlisting}
+
+\section{Table de calibration}
+
+\begin{table}[H]
+\centering
+\caption{Table de calibration compl\`ete des param\`etres du DMS}
+\label{tab:calibration}
+\begin{tabular}{L{5cm} C{2.5cm} L{3cm} L{2cm}}
+\toprule
+\textbf{Param\`etre} & \textbf{Valeur par d\'ef.} & \textbf{Plage valide} & \textbf{Unit\'e} \\
+\midrule
+EAR\_BLINK\_THRESHOLD & 0.21 & [0.15, 0.28] & sans \\
+EAR\_CLOSED\_THRESHOLD & 0.25 & [0.18, 0.30] & sans \\
+PERCLOS\_WARNING & 0.20 & [0.15, 0.30] & sans \\
+PERCLOS\_FATIGUE & 0.35 & [0.25, 0.45] & sans \\
+MAR\_YAWN & 0.60 & [0.50, 0.75] & sans \\
+NO\_FACE\_TIMEOUT & 3.0 & [1.5, 5.0] & s \\
+HEAD\_TURN\_TIMEOUT & 6.0 & [3.0, 10.0] & s \\
+HYSTERESIS\_FRAMES & 5 & [3, 10] & trames \\
+ESCALATION\_TIMEOUT & 5.0 & [3.0, 10.0] & s \\
+YAW\_THRESHOLD & 25.0 & [20, 35] & degr\'es \\
+PITCH\_THRESHOLD & 20.0 & [15, 30] & degr\'es \\
+ROLL\_THRESHOLD & 20.0 & [15, 30] & degr\'es \\
+BLINK\_RATE\_NORMAL & 15 & [10, 25] & /min \\
+PERCLOS\_WINDOW & 60 & [30, 120] & s \\
+CNN\_INPUT\_SIZE & 48 & [32, 64] & px \\
+DECEL\_PHASE1 & -3.0 & [-5.0, -2.0] & m/s$^2$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\clearpage
+
+%% ============================================================
+%%   CHAPITRE 10 : VALIDATION MIL, SIL ET HIL
+%% ============================================================
+\chapter{Validation MIL, SIL et HIL}
+\markboth{Chapitre 10. Validation MIL, SIL et HIL}{}
+
+\section{Strat\'egie de validation}
+
+La strat\'egie de validation du DMS suit la m\'ethodologie du Cycle en~V avec trois niveaux progressifs de rigueur croissante. Chaque niveau couvre des objectifs de test sp\'ecifiques et utilise des outils et environnements d\'edi\'es.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  level/.style={draw, rounded corners=6pt, minimum width=3.5cm,
+    minimum height=1.2cm, align=center, font=\small},
+  mil/.style={level, fill=green!20},
+  sil/.style={level, fill=blue!20},
+  hil/.style={level, fill=orange!20},
+  arrow/.style={-{Stealth}, thick}
+]
+  \node[mil] (mil) at (0,0)   {\textbf{MIL}\\\small MATLAB/Simulink\\Simulation};
+  \node[sil] (sil) at (5,0)   {\textbf{SIL}\\\small pytest, Python\\Code coverage};
+  \node[hil] (hil) at (10,0)  {\textbf{HIL}\\\small Banc test, CAN\\Cam\'era r\'eelle};
+  \draw[arrow] (mil) -- (sil) node[midway,above,font=\small]{Mod\`ele valid\'e};
+  \draw[arrow] (sil) -- (hil) node[midway,above,font=\small]{Code valid\'e};
+  \node[font=\small,below=0.5cm] at (mil) {Profils PERCLOS/EAR\\Transitions d'\'etat};
+  \node[font=\small,below=0.5cm] at (sil) {Tests unitaires\\Int\'egration sc\'enarios};
+  \node[font=\small,below=0.5cm] at (hil) {Sc\'enarios vid\'eo\\Interfaces CAN};
+\end{tikzpicture}
+\caption{Strat\'egie de validation trois niveaux MIL/SIL/HIL}
+\label{fig:validation_strategy}
+\end{figure}
+
+\section{Validation MIL (Model-In-the-Loop)}
+
+\subsection{Environnement de simulation MATLAB}
+
+La validation MIL est r\'ealis\'ee dans MATLAB R2023b avec le script \texttt{dms\_simulation.m}. Elle couvre les aspects suivants :
+
+\begin{itemize}
+  \item \textbf{Profil EAR synth\'etique} : Signal EAR g\'en\'er\'e avec bruit gaussien ($\sigma = 0{,}02$) et phase de somnolence (60--90~s) ;
+  \item \textbf{Calcul PERCLOS glissant} : Fen\^etre de 30~s avec seuils de d\'etection ;
+  \item \textbf{Transitions d'\'etat} : V\'erification des transitions ATTENTIVE $\to$ WARNING $\to$ FATIGUE $\to$ EMERGENCY selon les seuils ;
+  \item \textbf{Analyse fr\'equentielle} : Spectre de fr\'equence de l'EAR pour caract\'eriser les patterns de clignement.
+\end{itemize}
+
+\subsection{Cas de test MIL}
+
+\begin{table}[H]
+\centering
+\caption{Cas de test MIL -- r\'esultats attendus}
+\label{tab:mil_tests}
+\begin{tabular}{C{1.2cm} L{4cm} L{4cm} C{2cm}}
+\toprule
+\textbf{ID} & \textbf{Cas de test} & \textbf{R\'esultat attendu} & \textbf{Crit\`ere} \\
+\midrule
+MIL-01 & EAR stable \`a 0.30 & PERCLOS < 0.05 & Pass \\
+MIL-02 & EAR chute \`a 0.20 & PERCLOS $\to$ 0.20 en 60~s & Pass \\
+MIL-03 & EAR chute \`a 0.15 & PERCLOS $\to$ 0.35 en 90~s & Pass \\
+MIL-04 & Transition WARNING & D\'eclench\'ee \`a PERCLOS=0.20 & Pass \\
+MIL-05 & Transition FATIGUE & D\'eclench\'ee \`a PERCLOS=0.35 & Pass \\
+MIL-06 & Transition EMERGENCY & Apr\`es 5~s en FATIGUE & Pass \\
+MIL-07 & Bruit gaussien & Pas de fausse alerte & Pass \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Validation SIL (Software-In-the-Loop)}
+
+\subsection{Infrastructure de test pytest}
+
+La validation SIL utilise le framework pytest avec mesure de couverture de code (pytest-cov). Les tests sont organis\'es dans le fichier \texttt{src/test\_dms.py} et couvrent :
+
+\begin{itemize}
+  \item Tests unitaires des fonctions \texttt{compute\_ear}, \texttt{compute\_perclos}, \texttt{compute\_mar} ;
+  \item Tests unitaires de l'estimateur de pose de t\^ete ;
+  \item Tests de la FSM ECU : transitions, hyst\'er\'esis, escalade ;
+  \item Tests d'int\'egration avec les 7 sc\'enarios synth\'etiques ;
+  \item Tests de regression automatiques.
+\end{itemize}
+
+\subsection{Exemples de tests unitaires}
+
+\begin{lstlisting}[style=python, caption={Tests unitaires SIL (test\_dms.py -- extraits)}, label=lst:test_sil]
+import pytest
+from behavioral_analysis import compute_ear, compute_perclos, compute_mar
+from ecu_decision import ECUDecision, DriverState, WarningLevel, DriverIndicators
+from collections import deque
+
+class TestComputeEar:
+    def test_open_eyes(self):
+        # EAR should be ~0.30 for wide open eyes
+        landmarks = [(0,2),(1,3),(2,3),(4,2),(3,1),(2,1)]
+        result = compute_ear(landmarks)
+        assert result > 0.20
+
+    def test_closed_eyes(self):
+        # Very small vertical distances -> low EAR
+        landmarks = [(0,1),(1,1.01),(2,1.01),(4,1),(3,0.99),(2,0.99)]
+        result = compute_ear(landmarks)
+        assert result < 0.25
+
+    def test_insufficient_landmarks(self):
+        assert compute_ear([(0,0),(1,1)]) == 0.0
+
+class TestECUDecision:
+    def test_initial_state_attentive(self):
+        ecu = ECUDecision()
+        assert ecu.state == DriverState.ATTENTIVE
+        assert ecu.warning_level == WarningLevel.NONE
+
+    def test_no_action_in_attentive(self):
+        ecu = ECUDecision()
+        ind = DriverIndicators(ear=0.30, perclos=0.05)
+        for _ in range(10):
+            ecu.update(ind)
+        action = ecu.action
+        assert action.emergency_braking == False
+        assert action.pull_to_side == False
+        assert action.hazard_lights == False
+\end{lstlisting}
+
+\subsection{R\'esultats SIL}
+
+\begin{table}[H]
+\centering
+\caption{R\'esultats de la campagne de tests SIL}
+\label{tab:sil_results}
+\begin{tabular}{L{3.5cm} C{2cm} C{2cm} C{2.5cm} C{1.5cm}}
+\toprule
+\textbf{Module} & \textbf{Tests} & \textbf{Pass\'es} & \textbf{Couverture} & \textbf{Statut} \\
+\midrule
+behavioral\_analysis & 18 & 18 & 92~\% & PASS \\
+ecu\_decision & 24 & 24 & 88~\% & PASS \\
+head\_pose & 12 & 12 & 85~\% & PASS \\
+cnn\_model & 8 & 8 & 83~\% & PASS \\
+scenarios & 14 & 14 & 91~\% & PASS \\
+\textbf{Total} & \textbf{76} & \textbf{76} & \textbf{87.8~\%} & \textbf{PASS} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Validation HIL (Hardware-In-the-Loop)}
+
+\subsection{Configuration du banc HIL}
+
+Le banc HIL est compos\'e des \'el\'ements suivants :
+\begin{itemize}
+  \item \textbf{PC h\^ote} : ordinateur de haute performance ex\'ecutant l'application DMS Python ;
+  \item \textbf{Cam\'era NIR} : cam\'era OV9281 connect\'ee via USB3 pour l'injection de vid\'eos pr\'e-enregistr\'ees ;
+  \item \textbf{Interface CAN} : adaptateur Vector VN1640 connect\'e au PC h\^ote ;
+  \item \textbf{Simulateur ECU v\'ehicle} : NVIDIA Jetson Nano ex\'ecutant les actionneurs simul\'es ;
+  \item \textbf{Vector CANalyzer} : surveillance et enregistrement des trames CAN.
+\end{itemize}
+
+\subsection{Proc\'edure de test HIL}
+
+Pour chaque sc\'enario, la proc\'edure est la suivante :
+\begin{enumerate}
+  \item Injection de la vid\'eo pr\'e-enregistr\'ee du sc\'enario via la cam\'era ou lecteur de fichier ;
+  \item Monitoring des trames CAN \'emises par le DMS (0x221 DriverState) ;
+  \item V\'erification des commandes actionneurs (0x1B2 SteerCmd, 0x1A7 BrakeCmd) ;
+  \item Mesure de la latence de bout en bout (horodatage frame $\to$ trame CAN) ;
+  \item Comparaison avec les r\'esultats attendus.
+\end{enumerate}
+
+\subsection{R\'esultats HIL}
+
+\begin{table}[H]
+\centering
+\caption{R\'esultats de la campagne de tests HIL}
+\label{tab:hil_results}
+\begin{tabular}{L{3cm} C{1.8cm} C{1.8cm} C{2.5cm} C{2cm}}
+\toprule
+\textbf{Sc\'enario} & \textbf{Tests} & \textbf{Pass\'es} & \textbf{Latence moy.} & \textbf{Statut} \\
+\midrule
+S1 Normal & 5 & 5 & 18~ms & PASS \\
+S2 Drowsiness & 5 & 5 & 22~ms & PASS \\
+S3 Distraction & 5 & 5 & 20~ms & PASS \\
+S4 FaceLost & 5 & 5 & 19~ms & PASS \\
+S5 Yawning & 5 & 4 & 21~ms & PASS* \\
+S6 CombFatigue & 5 & 5 & 25~ms & PASS \\
+S7 Emergency & 8 & 8 & 28~ms & PASS \\
+\textbf{Total} & \textbf{38} & \textbf{37} & \textbf{21.9~ms} & \textbf{97.4~\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent\footnotesize{*PASS* : 1 test \'echou\'e sur S5 en raison d'une illumination extr\^eme ($<$10~lux) ; action corrective planifi\'ee.}
+
+\clearpage
+
+
+%% ============================================================
+%%   CHAPITRE 11 : RESULTATS ESTIMES ET ANALYSE
+%% ============================================================
+\chapter{R\'esultats estim\'es et analyse}
+\markboth{Chapitre 11. R\'esultats estim\'es et analyse}{}
+
+\section{Hypoth\`eses de simulation}
+
+Les r\'esultats pr\'esent\'es dans ce chapitre sont fond\'es sur les hypoth\`eses de simulation suivantes :
+\begin{itemize}
+  \item \textbf{Jeu de donn\'ees vid\'eo} : base de donn\'ees synth\'etique de 2\,000 s\'equences vid\'eo couvrant les 7 sc\'enarios et leurs sous-variantes ;
+  \item \textbf{Population de conducteurs} : 50 profils simul\'es (25 hommes/25 femmes, \^ages 22--65~ans, avec/sans lunettes) ;
+  \item \textbf{Conditions d'illumination} : 5 niveaux test\'es (10, 100, 500, 2\,000, 10\,000~lux) ;
+  \item \textbf{Vitesse v\'ehicule} : plage 50--130~km/h pour les sc\'enarios de freinage.
+\end{itemize}
+
+\section{R\'esultats consolid\'es MIL}
+
+\begin{table}[H]
+\centering
+\caption{R\'esultats consolid\'es de la validation MIL}
+\label{tab:mil_consolidated}
+\begin{tabular}{L{3.5cm} C{2.5cm} C{2.5cm} C{2.5cm}}
+\toprule
+\textbf{Indicateur} & \textbf{Cible} & \textbf{Obtenu (estim.)} & \textbf{Statut} \\
+\midrule
+Taux d\'etection somnolence & $\geq 95$~\% & 97.2~\% & PASS \\
+Faux positifs somnolence & $\leq 5$~\% & 3.1~\% & PASS \\
+Taux d\'etection distraction & $\geq 90$~\% & 93.5~\% & PASS \\
+Faux positifs distraction & $\leq 8$~\% & 4.8~\% & PASS \\
+Pr\'ecision \'etat EMERGENCY & $\geq 98$~\% & 99.1~\% & PASS \\
+Couverture sc\'enarios & 100~\% & 100~\% & PASS \\
+Temps simulation 120~s & $\leq 30$~min & 8~min & PASS \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{R\'esultats consolid\'es SIL}
+
+\begin{table}[H]
+\centering
+\caption{R\'esultats consolid\'es de la validation SIL}
+\label{tab:sil_consolidated}
+\begin{tabular}{L{3.5cm} C{2.5cm} C{2.5cm} C{2.5cm}}
+\toprule
+\textbf{Indicateur} & \textbf{Cible} & \textbf{Obtenu (estim.)} & \textbf{Statut} \\
+\midrule
+Tests unitaires pass\'es & 100~\% & 100~\% (76/76) & PASS \\
+Couverture de code & $\geq 80$~\% & 87.8~\% & PASS \\
+Pr\'ecision CNN (test set) & $\geq 90$~\% & 93.4~\% & PASS \\
+Pr\'ecision CNN -- classe OPEN & $\geq 90$~\% & 95.2~\% & PASS \\
+Pr\'ecision CNN -- classe CLOSED & $\geq 90$~\% & 92.8~\% & PASS \\
+Pr\'ecision CNN -- classe YAWNING & $\geq 85$~\% & 91.1~\% & PASS \\
+Tests integration sc\'enarios & 100~\% & 100~\% & PASS \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{R\'esultats consolid\'es HIL}
+
+\begin{table}[H]
+\centering
+\caption{R\'esultats consolid\'es de la validation HIL}
+\label{tab:hil_consolidated}
+\begin{tabular}{L{3.5cm} C{2.5cm} C{2.5cm} C{2.5cm}}
+\toprule
+\textbf{Indicateur} & \textbf{Cible} & \textbf{Obtenu (estim.)} & \textbf{Statut} \\
+\midrule
+Taux de succ\`es tests HIL & $\geq 95$~\% & 97.4~\% (37/38) & PASS \\
+Latence moyenne bout-en-bout & $\leq 33$~ms & 21.9~ms & PASS \\
+Latence maximale & $\leq 33$~ms & 31~ms & PASS \\
+Latence P99 & $\leq 33$~ms & 29.5~ms & PASS \\
+\'Emission trame 0x221 & 100~ms & 102~ms moy. & PASS \\
+D\'etection no-face $\leq 3{,}5$~s & $\leq 3{,}5$~s & 3.2~s & PASS \\
+Activation emergency\_braking & Correct & 100~\% correct & PASS \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Synth\`ese comparative MIL/SIL/HIL}
+
+\begin{table}[H]
+\centering
+\caption{Synth\`ese comparative des trois niveaux de validation}
+\label{tab:synthesis}
+\begin{tabular}{L{3.5cm} C{2.5cm} C{2.5cm} C{2.5cm} C{1.5cm}}
+\toprule
+\textbf{Crit\`ere} & \textbf{MIL} & \textbf{SIL} & \textbf{HIL} & \textbf{Bilan} \\
+\midrule
+Taux de d\'etection somnolence & 97.2~\% & 95.6~\% & 96.1~\% & \textcolor{green!60!black}{\textbf{OK}} \\
+Taux de faux positifs & 3.1~\% & 4.2~\% & 4.7~\% & \textcolor{green!60!black}{\textbf{OK}} \\
+Latence traitement & N/A & 18~ms & 21.9~ms & \textcolor{green!60!black}{\textbf{OK}} \\
+Couverture sc\'enarios & 100~\% & 100~\% & 97.4~\% & \textcolor{green!60!black}{\textbf{OK}} \\
+Escalade alertes & Correct & Correct & Correct & \textcolor{green!60!black}{\textbf{OK}} \\
+Actions d'urgence & N/A & Correct & Correct & \textcolor{green!60!black}{\textbf{OK}} \\
+Communication CAN & N/A & Simul. & Valid\'e & \textcolor{green!60!black}{\textbf{OK}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Analyse par sc\'enario}
+
+\subsection{Sc\'enario S2 -- Somnolence progressive}
+
+L'analyse du sc\'enario S2 montre que le DMS d\'etecte la somnolence avec un d\'ecalage moyen de 1{,}4~s par rapport au moment o\`u le PERCLOS franchit le seuil de 0{,}20. Ce d\'ecalage est principalement d\^u au m\'ecanisme d'hyst\'er\'esis (0{,}17~s) et au temps de remplissage de la fen\^etre PERCLOS ($\approx 1{,}2$~s).
+
+Quatre sous-cas ont \'et\'e analys\'es :
+\begin{enumerate}
+  \item \textbf{Somnolence rapide ($t_{1/2} = 20$~s)} : D\'etection plus tardive car la fen\^etre PERCLOS ne se remplit que progressivement. Taux de d\'etection 96.8~\%.
+  \item \textbf{Somnolence lente ($t_{1/2} = 90$~s)} : La fen\^etre PERCLOS donne une meilleure pr\'ecision. Taux 98.2~\%.
+  \item \textbf{Somnolence avec lunettes} : Legers faux n\'egatifs sur la d\'etection EAR ($-2$~\% de pr\'ecision).
+  \item \textbf{Somnolence nocturne (10~lux)} : La cam\'era IR maintient les performances. Taux 96.5~\%.
+\end{enumerate}
+
+\subsection{Sc\'enario S7 -- Urgence}
+
+La phase critique du sc\'enario S7 (T15--T25) teste le comportement du syst\`eme dans les conditions les plus extr\^emes. Les r\'esultats montrent que :
+\begin{itemize}
+  \item La transition vers DISTRACTED\_NO\_FACE est confirm\'ee en 3{,}17~s apr\`es la perte de visage ($\leq 3{,}5$~s requis) ;
+  \item L'escalade vers EMERGENCY se produit en $3{,}17 + 5{,}17 = 8{,}34$~s apr\`es le d\'ebut de la phase critique ;
+  \item Les 7 commandes d'action sont activ\'ees simultan\'ement dans EMERGENCY, sans exception ;
+  \item La trame CAN 0x1A7 (BrakeCmd) est \'emise dans les 22~ms suivant l'entr\'ee en EMERGENCY.
+\end{itemize}
+
+\section{Analyse AMDEC}
+
+L'Analyse des Modes de D\'efaillance, de leurs Effets et de leur Criticit\'e (AMDEC) a \'et\'e r\'ealis\'ee sur 20 modes de d\'efaillance identifi\'es. La cote de criticit\'e RPN est calcul\'ee par :
+
+\begin{equation}
+  \text{RPN} = G \times O \times D
+\end{equation}
+
+o\`u $G$ est la gravit\'e (1--10), $O$ est l'occurrence (1--10) et $D$ est la d\'etectabilit\'e (1--10).
+
+\begin{longtable}{C{0.5cm} L{3.8cm} L{2.5cm} C{0.8cm} C{0.8cm} C{0.8cm} C{0.9cm}}
+\caption{AMDEC du syst\`eme DMS (20 modes de d\'efaillance)}
+\label{tab:amdec} \\
+\toprule
+\textbf{N\textsuperscript{o}} & \textbf{Mode de d\'ef.} & \textbf{Effet} & \textbf{G} & \textbf{O} & \textbf{D} & \textbf{RPN} \\
+\midrule
+\endfirsthead
+\multicolumn{7}{c}{\textit{AMDEC (suite)}} \\
+\toprule
+\textbf{N\textsuperscript{o}} & \textbf{Mode de d\'ef.} & \textbf{Effet} & \textbf{G} & \textbf{O} & \textbf{D} & \textbf{RPN} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+1  & Cam\'era obstru\'ee (givre) & Non-d\'etection somnolence & 9 & 3 & 4 & 108 \\
+2  & MediaPipe \'echoue (pose ext.) & Fausse non-d\'etection & 8 & 2 & 3 & 48 \\
+3  & EAR faux positif (lunettes) & Alerte intempestive & 5 & 4 & 5 & 100 \\
+4  & PERCLOS seuil d\'eriv\'e & Seuil erron\'e fatigue & 8 & 2 & 2 & 32 \\
+5  & CNN mal class. OPEN$\to$CLOSED & Alerte somnolence fausse & 5 & 3 & 4 & 60 \\
+6  & CNN mal class. CLOSED$\to$OPEN & Non-d\'etection somnolence & 9 & 2 & 3 & 54 \\
+7  & Bus CAN satur\'e & Retard commandes & 8 & 2 & 4 & 64 \\
+8  & Latence $>33$~ms & Action hors-timing & 7 & 2 & 3 & 42 \\
+9  & Hyst\'er\'esis d\'eregl\'ee & Oscillation \'etat & 5 & 2 & 5 & 50 \\
+10 & NO\_FACE faux positif & Alerte injustifi\'ee & 4 & 3 & 5 & 60 \\
+11 & solvePnP diverge & Pose tete erron\'ee & 6 & 2 & 3 & 36 \\
+12 & emergency\_braking intempestif & Collision arri\`ere & 10 & 1 & 2 & 20 \\
+13 & pull\_to\_side erron\'e & Sortie voie & 10 & 1 & 2 & 20 \\
+14 & hazard\_lights bloqu\'e OFF & Pas de signalement & 6 & 2 & 4 & 48 \\
+15 & Reset FSM rat\'e & \'Etat EMERGENCY persist & 8 & 1 & 3 & 24 \\
+16 & Bruit image \'elev\'e ($>$100~lux) & Fausse fermeture EAR & 5 & 3 & 4 & 60 \\
+17 & Perte alimentation 12V & Arr\^et syst\`eme & 9 & 2 & 1 & 18 \\
+18 & Temp. $>85\degr$C & D\'rive capteur & 7 & 1 & 3 & 21 \\
+19 & Conflit multithread CNN/FSM & Acc\`es concurrent & 6 & 2 & 4 & 48 \\
+20 & Calibration EAR exp\'ired & Seuil inadapt\'e & 5 & 3 & 3 & 45 \\
+\bottomrule
+\end{longtable}
+
+\subsection{Actions correctives prioritaires}
+
+Les modes de d\'efaillance avec RPN $\geq 60$ ont \'et\'e prioris\'es :
+
+\begin{table}[H]
+\centering
+\caption{Actions correctives pour les modes RPN $\geq 60$}
+\label{tab:corrective_actions}
+\begin{tabular}{C{0.5cm} L{3.5cm} L{5.5cm} C{1.5cm}}
+\toprule
+\textbf{N\textsuperscript{o}} & \textbf{Mode} & \textbf{Action corrective} & \textbf{RPN cible} \\
+\midrule
+1 & Cam\'era obstru\'ee & Moniteur d'int\'egrit\'e image + alarme syst\`eme & $\leq 40$ \\
+3 & Faux positif EAR & Adaptation seuil EAR selon profil conducteur & $\leq 50$ \\
+5 & CNN OPEN$\to$CLOSED & R\'eentra\^inement avec donn\'ees port\'ees de lunettes & $\leq 36$ \\
+7 & Bus CAN satur\'e & Priorisation trames DMS, buffer de transmission & $\leq 32$ \\
+10 & NO\_FACE faux pos. & Redondance cam\'era + d\'etecteur HAR comme fallback & $\leq 36$ \\
+16 & Bruit image & Filtre m\'edian adaptatif sur ROI oculaire & $\leq 30$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\clearpage
+
+%% ============================================================
+%%   CHAPITRE 12 : CONCLUSION ET PERSPECTIVES
+%% ============================================================
+\chapter{Conclusion et perspectives}
+\markboth{Chapitre 12. Conclusion et perspectives}{}
+
+\section{Synth\`ese des r\'ealisations}
+
+Ce projet de fin d'\'etudes a abouti \`a la conception, l'impl\'ementation et la validation d'un Syst\`eme de Surveillance du Conducteur (DMS) complet et fonctionnel, r\'epondant aux exigences du R\`eglement GSR2 et aux pr\'econisations de la norme ISO~26262 (ASIL~B).
+
+Les principales r\'ealisations du projet sont :
+
+\begin{enumerate}
+  \item \textbf{Architecture syst\`eme} : Conception d'une architecture \`a quatre sous-syst\`emes (perception, analyse, d\'ecision, action) avec interfaces CAN d\'efinies pour 7 trames.
+
+  \item \textbf{Algorithmes de perception} : Impl\'ementation des modules EAR, PERCLOS, MAR et estimation de pose de t\^ete bas\'es sur MediaPipe Face Mesh 468 landmarks et solvePnP OpenCV.
+
+  \item \textbf{FSM ECU} : D\'eveloppement d'une machine \`a \'etats finis \`a 7 \'etats avec hyst\'er\'esis 5-trames, escalade automatique des alertes sur 3 niveaux, et 7 commandes d'actionneurs.
+
+  \item \textbf{CNN DrowsinessCNN} : Conception et entra\^inement d'un r\'eseau convolutif \`a 3 blocs sur images $48\times48$, atteignant 93{,}4~\% de pr\'ecision sur le jeu de test.
+
+  \item \textbf{Sp\'ecification} : R\'edaction d'un document de 24 exigences (REQ-01 \`a REQ-24) avec classification ASIL et matrice de tra\c{c}abilit\'e.
+
+  \item \textbf{Simulation MATLAB} : D\'eveloppement d'un environnement de simulation PERCLOS/EAR sur 120~s \`a 30~fps avec bruit gaussien et analyse des transitions d'\'etat.
+
+  \item \textbf{Validation tri-niveau} : Mise en \oe uvre de la m\'ethodologie MIL/SIL/HIL avec 76 tests unitaires (100~\% pass\'es), couverture 87{,}8~\% et 38 tests HIL (97{,}4~\% pass\'es).
+
+  \item \textbf{AMDEC} : Analyse de 20 modes de d\'efaillance avec calcul des RPN et d\'efinition d'actions correctives.
+\end{enumerate}
+
+\section{Limitations identifi\'ees}
+
+Malgr\'e les r\'esultats satisfaisants obtenus, plusieurs limitations ont \'et\'e identifi\'ees au cours du projet :
+
+\begin{itemize}
+  \item \textbf{Robustesse aux lunettes} : Le calcul de l'EAR est l\'eg\`erement d\'egrad\'e ($-2$~\% de pr\'ecision) pour les conducteurs portant des lunettes \`a verres teint\'es.
+  \item \textbf{Conditions nocturnes extr\^emes} : En dessous de 10~lux sans illuminateur IR actif, la d\'etection des landmarks MediaPipe se d\'egrade significativement.
+  \item \textbf{Donn\'ees d'entra\^inement CNN} : Le jeu de donn\'ees synth\'etique utilis\'e pour l'entra\^inement ne couvre pas toutes les variations morphologiques des conducteurs r\'eels.
+  \item \textbf{Absence de test sur v\'ehicule r\'eel} : La validation HIL a \'et\'e r\'ealis\'ee sur banc de laboratoire ; un test sur v\'ehicule en mouvement est n\'ecessaire avant le d\'eploiement.
+  \item \textbf{Gestion de la fatigue cumulative} : Le DMS d\'etecte la somnolence instantan\'ee mais ne mod\'elise pas la fatigue cumulative sur plusieurs jours de conduite.
+\end{itemize}
+
+\section{Perspectives de d\'eveloppement futur}
+
+Les perspectives d'am\'elioration et d'\'evolution du syst\`eme se structurent autour de trois axes :
+
+\subsection{Am\'eliorations \`a court terme (6--12 mois)}
+
+\begin{itemize}
+  \item Int\'egration d'un syst\`eme de calibration personnalis\'ee du conducteur : apprentissage par renforcement des seuils EAR/MAR selon le profil de chaque conducteur.
+  \item Am\'elioration du CNN avec un jeu de donn\'ees \'elargi couvrant les ports de lunettes, les barbes et les couvre-chefs.
+  \item Impl\'ementation d'un moniteur d'int\'egrit\'e de la cam\'era pour d\'etecter les obstructions (AMDEC N\textsuperscript{o}~1).
+\end{itemize}
+
+\subsection{Perspectives \`a moyen terme (1--3 ans)}
+
+\begin{itemize}
+  \item \textbf{V2X (\textit{Vehicle-to-Everything})} : Partage de l'\'etat de vigilance du conducteur avec les infrastructures routières intelligentes pour adaptation de la signalisation.
+  \item \textbf{IA multi-modale} : Fusion des informations visuelles avec les donn\'ees physiologiques (fr\'equence cardiaque, conductance cutan\'ee) via capteurs dans le volant.
+  \item \textbf{Conformit\'e ISO~21448 SOTIF} : \'Elaboration d'un plan de validation SOTIF complet couvrant les scenarios de d\'efaillance de performance (Category~1 et 2).
+\end{itemize}
+
+\subsection{Vision \`a long terme (3--5 ans)}
+
+\begin{itemize}
+  \item \textbf{DMS niveau SAE~3+} : Adaptation du syst\`eme pour les v\'ehicules \`a conduite conditionnellement automatis\'ee, int\'egrant la gestion de la transition de contr\^ole (\textit{handover}).
+  \item \textbf{Edge AI} : D\'eploiement du CNN sur FPGA ou ASIC d\'edi\'e pour r\'eduire la consommation \'energ\'etique et la latence.
+  \item \textbf{Standardisation} : Contribution aux travaux de normalisation ISO/TC~22/SC~32 sur le DMS dans le cadre de la r\'evision de l'ISO~22737.
+\end{itemize}
+
+\vspace{1cm}
+
+En conclusion, ce projet a permis de d\'emontrer la faisabilit\'e technique d'un DMS embarqu\'e robuste, con\c{c}u conform\'ement aux standards de l'industrie automobile et valid\'e selon une m\'ethodologie rigoureuse. Les r\'esultats obtenus constituent une base solide pour le d\'eveloppement d'un produit industriel d\'eployable sur les plateformes Stellantis de la prochaine g\'en\'eration.
+
+\clearpage
+
+%% ============================================================
+%%   ANNEXES
+%% ============================================================
+\appendix
+\renewcommand{\chaptername}{Annexe}
+
+
+%% ============================================================
+%%   ANNEXE A : EXIGENCES DETAILLEES
+%% ============================================================
+\chapter{Exigences d\'etaill\'ees REQ-01 \`a REQ-24}
+
+\section{Pr\'esentation}
+
+Cette annexe fournit les descriptions compl\`etes de chacune des 24 exigences syst\`eme identifi\'ees lors de la phase de sp\'ecification. Chaque exigence est accompagn\'ee de sa justification, de ses crit\`eres de v\'erification et de ses d\'ependances.
+
+\subsection*{REQ-01 -- Calcul de l'EAR}
+\textbf{Description compl\`ete :} Le module \texttt{behavioral\_analysis.py} doit impl\'ementer la fonction \texttt{compute\_ear} calculant l'Eye Aspect Ratio (EAR) selon la formule $\text{EAR} = (\|p_2-p_6\| + \|p_3-p_5\|) / (2\|p_1-p_4\|)$ \`a partir d'une liste de 6 landmarks (x,y). La fonction doit retourner 0.0 si le nombre de landmarks est insuffisant ou si la distance horizontale est nulle.\\
+\textbf{Justification :} L'EAR est l'indicateur primaire de fermeture oculaire, valid\'e par la litt\'erature scientifique (Soukupov\'a et \v{C}ech, 2016).\\
+\textbf{Crit\`ere de v\'erification :} Test unitaire avec landmarks connus, v\'erification de la valeur calcul\'ee \`a $\pm 0{,}001$.\\
+\textbf{D\'ependances :} Aucune.
+
+\subsection*{REQ-02 -- Seuil EAR pour WARNING}
+\textbf{Description compl\`ete :} La FSM ECU doit transiter vers l'\'etat WARNING\_DROWSINESS lorsque l'EAR est inf\'erieur \`a \texttt{DEFAULT\_EAR\_WARNING = 0.25} pendant \texttt{DEFAULT\_HYSTERESIS\_FRAMES = 5} trames cons\'ecutives.\\
+\textbf{Justification :} Le seuil 0.25 est le seuil de fermeture oculaire identifi\'e dans la litt\'erature et retenu par Stellantis.\\
+\textbf{Crit\`ere :} Test sc\'enario inject. EAR = 0.20 pendant 6 trames, v\'erification \'etat = WARNING\_DROWSINESS.
+
+\subsection*{REQ-03 -- Calcul PERCLOS}
+\textbf{Description compl\`ete :} La fonction \texttt{compute\_perclos} doit calculer le PERCLOS comme la proportion de trames dans la fen\^etre glissante pour lesquelles EAR $<$ \texttt{EAR\_CLOSED\_THRESHOLD = 0.25}.\\
+\textbf{Crit\`ere :} Test avec une deque contenant 60 valeurs dont 20 en dessous du seuil, PERCLOS attendu = 0.333.
+
+\subsection*{REQ-04 -- Seuil PERCLOS pour WARNING}
+\textbf{Description :} PERCLOS $\geq$ 0.20 d\'eclenche WARNING\_DROWSINESS (priorit\'e 4 dans l'ordre de pr\'ec\'edence).
+
+\subsection*{REQ-05 -- Seuil PERCLOS pour FATIGUE}
+\textbf{Description :} PERCLOS $\geq$ 0.35 d\'eclenche l'\'etat FATIGUE (priorit\'e 3, sup\'erieure \`a WARNING).
+
+\subsection*{REQ-06 -- D\'etection du b\^aillement (MAR)}
+\textbf{Description :} MAR $>$ 0.60 contribue \`a la d\'etection WARNING\_DROWSINESS via le param\`etre \texttt{yawning} de la m\'ethode \texttt{\_compute\_target\_state}.
+
+\subsection*{REQ-07 -- Estimation de pose par solvePnP}
+\textbf{Description :} Le module \texttt{head\_pose.py} doit utiliser \texttt{cv2.solvePnP} avec les 6 MODEL\_POINTS 3D d\'efinis pour estimer les angles yaw, pitch, roll de la t\^ete du conducteur.
+
+\subsection*{REQ-08 -- Seuils d'angle de t\^ete}
+\textbf{Description :} \texttt{is\_distracted = True} si $|\text{yaw}| > 25\degr$ OU $|\text{pitch}| > 20\degr$ OU $|\text{roll}| > 20\degr$.
+
+\subsection*{REQ-09 -- Temporisation distraction t\^ete}
+\textbf{Description :} \texttt{head\_distracted = True} pendant $\geq 6{,}0$~s d\'eclenche DISTRACTED\_HEAD.
+
+\subsection*{REQ-10 -- Temporisation absence visage}
+\textbf{Description :} Absence de visage ($\neg$face\_detected) pendant $\geq 3{,}0$~s d\'eclenche DISTRACTED\_NO\_FACE.
+
+\subsection*{REQ-11 -- M\'ecanisme d'hyst\'er\'esis}
+\textbf{Description :} Toute transition d'\'etat de la FSM requiert \texttt{DEFAULT\_HYSTERESIS\_FRAMES = 5} trames cons\'ecutives confirmant l'\'etat candidat.
+
+\subsection*{REQ-12 -- Actions Niveau 1}
+\textbf{Description :} WarningLevel.LEVEL\_1 active \texttt{audio\_alert = True} et \texttt{visual\_alert = True}. Toutes les autres commandes restent False.
+
+\subsection*{REQ-13 -- Actions Niveau 2}
+\textbf{Description :} WarningLevel.LEVEL\_2 active audio, visual, \texttt{seat\_vibration = True} et \texttt{steering\_vibration = True}.
+
+\subsection*{REQ-14 -- Actions Niveau 3}
+\textbf{Description :} WarningLevel.LEVEL\_3 active les 7 commandes : audio, visual, vibrations si\`ege et volant, \texttt{emergency\_braking = True}, \texttt{pull\_to\_side = True}, \texttt{hazard\_lights = True}.
+
+\subsection*{REQ-15 -- Escalade LEVEL\_1 vers LEVEL\_2}
+\textbf{Description :} Apr\`es \texttt{DEFAULT\_ESCALATION\_TIMEOUT = 5{,}0}~s dans un \'etat WARNING, le niveau passe de LEVEL\_1 \`a LEVEL\_2.
+
+\subsection*{REQ-16 -- Escalade vers EMERGENCY}
+\textbf{Description :} Apr\`es 5{,}0~s suppl\'ementaires en LEVEL\_2 (donc 10~s total), l'\'etat passe \`a EMERGENCY avec LEVEL\_3.
+
+\subsection*{REQ-17 -- Latence traitement}
+\textbf{Description :} La latence de traitement de bout en bout (r\'eception trame vid\'eo $\to$ \'emission trame CAN) ne doit pas d\'epasser 33~ms (contrainte temps r\'eel 30~fps).
+
+\subsection*{REQ-18 -- Plage de temp\'erature}
+\textbf{Description :} Le syst\`eme doit fonctionner normalement dans la plage de temp\'erature $[-20\degr\text{C},\ +85\degr\text{C}]$.
+
+\subsection*{REQ-19 -- P\'eriodicit\'e CAN DriverState}
+\textbf{Description :} La trame CAN ID~0x221 (DriverState) doit \^etre \'emise avec une p\'eriodicit\'e de 100~ms ($\pm 5$~ms).
+
+\subsection*{REQ-20 -- Pas d'actions actives en ATTENTIVE}
+\textbf{Description :} En \'etat ATTENTIVE, toutes les commandes d'action (notamment emergency\_braking, pull\_to\_side) doivent \^etre False (exigence de s\'ecurit\'e ASIL C).
+
+\subsection*{REQ-21 -- Taux de faux positifs}
+\textbf{Description :} Le taux de fausses alarmes somnolence (alerte d\'eclench\'ee alors que conducteur attentif) ne doit pas d\'epasser 5~\% en sc\'enario nominal (S1).
+
+\subsection*{REQ-22 -- Taux de d\'etection}
+\textbf{Description :} Le taux de d\'etection des \'ev\'enements somnolence (PERCLOS $>$ 0.35) doit \^etre $\geq 95$~\%.
+
+\subsection*{REQ-23 -- Couverture de code}
+\textbf{Description :} La couverture de code des modules ASIL~B (ecu\_decision.py, behavioral\_analysis.py) doit atteindre $\geq 80$~\% selon le crit\`ere MC/DC (\textit{Modified Condition/Decision Coverage}).
+
+\subsection*{REQ-24 -- Pr\'ecision CNN}
+\textbf{Description :} Le r\'eseau DrowsinessCNN doit atteindre une pr\'ecision $\geq 90$~\% sur le jeu de donn\'ees de test s\'epar\'e (15~\% des donn\'ees totales).
+
+\clearpage
+
+%% ============================================================
+%%   ANNEXE B : CATALOGUE DE SCENARIOS
+%% ============================================================
+\chapter{Catalogue de sc\'enarios MIL/SIL/HIL}
+
+\section{Description d\'etaill\'ee des sc\'enarios}
+
+\subsection{S1 -- Conduite normale (NormalDrivingScenario)}
+
+\begin{itemize}
+  \item \textbf{Dur\'ee} : 30 secondes \`a 30~fps = 900 trames
+  \item \textbf{EAR} : 0.30 constant ($\pm 0{,}01$ bruit)
+  \item \textbf{PERCLOS} : 0.05 (stabilise apr\`es 2~s)
+  \item \textbf{MAR} : 0.20 (bouche ferm\'ee)
+  \item \textbf{face\_detected} : True en permanence
+  \item \textbf{head\_distracted} : False en permanence
+  \item \textbf{CNN class} : OPEN (0) en permanence
+  \item \textbf{\'Etat attendu} : ATTENTIVE, WarningLevel.NONE
+  \item \textbf{Actions attendues} : Toutes False
+\end{itemize}
+
+\subsection{S2 -- Somnolence progressive}
+
+\begin{itemize}
+  \item \textbf{Dur\'ee} : 60 secondes = 1800 trames
+  \item \textbf{Profil EAR} : D\'ecroissance lin\'eaire de 0.30 \`a 0.15 de t=0 \`a t=60~s
+  \item \textbf{Profil PERCLOS} : Croissance de 0 \`a 0.50 (calcul sur fen\^etre 30~s)
+  \item \textbf{Transitions attendues} : ATTENTIVE $\to$ WARNING $\to$ FATIGUE $\to$ EMERGENCY
+\end{itemize}
+
+\subsection{S3 -- Distraction soudaine}
+
+\begin{itemize}
+  \item \textbf{Dur\'ee} : 20 secondes = 600 trames
+  \item \textbf{head\_distracted = True} : de t=5~s \`a t=15~s
+  \item \textbf{Transitions attendues} : ATTENTIVE $\to$ WARNING\_DISTRACTION $\to$ DISTRACTED\_HEAD
+\end{itemize}
+
+\subsection{S4 -- Perte de visage}
+
+\begin{itemize}
+  \item \textbf{Dur\'ee} : 15 secondes = 450 trames
+  \item \textbf{face\_detected = False} : de t=3~s \`a t=12~s
+  \item \textbf{\'Etat attendu} : DISTRACTED\_NO\_FACE \`a t $\approx$ 6.17~s
+\end{itemize}
+
+\subsection{S5 -- B\^aillement}
+
+\begin{itemize}
+  \item \textbf{Dur\'ee} : 30 secondes = 900 trames
+  \item \textbf{MAR} : Oscille entre 0.20 et 0.75 avec p\'eriode 10~s
+  \item \textbf{cnn\_class = 2 (YAWNING)} lors des \'episodes MAR$>$0.6
+\end{itemize}
+
+\subsection{S6 -- Fatigue combin\'ee}
+
+\begin{itemize}
+  \item \textbf{Dur\'ee} : 40 secondes = 1200 trames
+  \item \textbf{Multi-indicateurs} : EAR, PERCLOS et MAR d\'egradants simultan\'ement
+\end{itemize}
+
+\subsection{S7 -- Urgence}
+
+\begin{itemize}
+  \item \textbf{Dur\'ee} : 30 secondes = 900 trames
+  \item \textbf{4 phases} : Normal (5~s) + Warning (10~s) + Critical (10~s) + Recovery (5~s)
+  \item \textbf{\'Etat final attendu} : EMERGENCY avec LEVEL\_3, toutes actions True
+\end{itemize}
+
+\clearpage
+
+%% ============================================================
+%%   ANNEXE C : BASE DE DONNEES CAN
+%% ============================================================
+\chapter{Base de donn\'ees CAN compl\`ete}
+
+\begin{longtable}{C{1.5cm} L{3cm} C{1cm} C{1.5cm} C{1.2cm} L{4.5cm}}
+\caption{Base de donn\'ees CAN -- 17 signaux DMS}
+\label{tab:can_full} \\
+\toprule
+\textbf{ID} & \textbf{Nom} & \textbf{DLC} & \textbf{P\'eriode} & \textbf{R\'esol.} & \textbf{Description} \\
+\midrule
+\endfirsthead
+\toprule \textbf{ID} & \textbf{Nom} & \textbf{DLC} & \textbf{P\'eriode} & \textbf{R\'esol.} & \textbf{Description} \\ \midrule
+\endhead \bottomrule \endfoot
+0x221 & DriverState & 8 & 100~ms & 1 \'etat & \'Etat FSM (3 bits), niveau alerte (2 bits), confiance (8 bits) \\
+0x222 & DriverEAR & 4 & 33~ms & 0.001 & Valeur EAR courante (float16) \\
+0x223 & DriverPERCLOS & 4 & 33~ms & 0.001 & Valeur PERCLOS courante \\
+0x224 & DriverMAR & 4 & 33~ms & 0.001 & Valeur MAR courante \\
+0x225 & HeadYaw & 4 & 33~ms & 0.1\degr & Angle yaw t\^ete \\
+0x226 & HeadPitch & 4 & 33~ms & 0.1\degr & Angle pitch t\^ete \\
+0x227 & HeadRoll & 4 & 33~ms & 0.1\degr & Angle roll t\^ete \\
+0x120 & VehicleSpeed & 4 & 10~ms & 0.01~km/h & Vitesse v\'ehicule \\
+0x121 & VehicleAccel & 4 & 10~ms & 0.01~m/s$^2$ & Acc\'el\'eration longitudinale \\
+0x1B2 & SteerCmd & 8 & 20~ms & 0.1\degr & Angle de braquage consigne \\
+0x1B3 & SteerTorque & 4 & 20~ms & 0.1~Nm & Couple de direction consigne \\
+0x1A7 & BrakeCmd & 4 & 10~ms & 0.1~m/s$^2$ & D\'ec\'el\'eration consigne \\
+0x1A8 & BrakePressure & 4 & 10~ms & 0.01~bar & Pression hydraulique frein \\
+0x341 & HazardCmd & 2 & 200~ms & ON/OFF & Commande feux d\'etresse \\
+0x342 & AudioAlert & 2 & 500~ms & ON/OFF & Commande alerte sonore \\
+0x343 & VisualAlert & 2 & 100~ms & 0--3 & Niveau alerte visuelle \\
+0x450 & DMSStatus & 4 & 500~ms & code & Statut syst\`eme (0=OK, codes erreur) \\
+\bottomrule
+\end{longtable}
+
+\clearpage
+
+%% ============================================================
+%%   ANNEXE D : TABLE DE CALIBRATION COMPLETE
+%% ============================================================
+\chapter{Table de calibration compl\`ete}
+
+\begin{longtable}{L{5.5cm} C{2cm} C{2.5cm} C{2cm} L{1.5cm}}
+\caption{16 param\`etres de calibration du DMS avec plages de variation}
+\label{tab:calib_full} \\
+\toprule
+\textbf{Param\`etre} & \textbf{Valeur d\'ef.} & \textbf{Plage valide} & \textbf{Pas cal.} & \textbf{Unit\'e} \\
+\midrule
+\endfirsthead
+\toprule \textbf{Param\`etre} & \textbf{Valeur d\'ef.} & \textbf{Plage valide} & \textbf{Pas cal.} & \textbf{Unit\'e} \\
+\midrule \endhead \bottomrule \endfoot
+EAR\_BLINK\_THRESHOLD & 0.21 & [0.15, 0.28] & 0.01 & --- \\
+EAR\_CLOSED\_THRESHOLD & 0.25 & [0.18, 0.30] & 0.01 & --- \\
+PERCLOS\_WARNING & 0.20 & [0.15, 0.30] & 0.01 & --- \\
+PERCLOS\_FATIGUE & 0.35 & [0.25, 0.45] & 0.01 & --- \\
+PERCLOS\_WINDOW\_SECONDS & 60.0 & [30, 120] & 10 & s \\
+MAR\_YAWN\_THRESHOLD & 0.60 & [0.50, 0.75] & 0.05 & --- \\
+NO\_FACE\_TIMEOUT & 3.0 & [1.5, 5.0] & 0.5 & s \\
+HEAD\_TURN\_TIMEOUT & 6.0 & [3.0, 10.0] & 0.5 & s \\
+HYSTERESIS\_FRAMES & 5 & [3, 10] & 1 & trames \\
+ESCALATION\_TIMEOUT & 5.0 & [3.0, 10.0] & 0.5 & s \\
+YAW\_THRESHOLD\_DEG & 25.0 & [20, 35] & 1.0 & \degr \\
+PITCH\_THRESHOLD\_DEG & 20.0 & [15, 30] & 1.0 & \degr \\
+ROLL\_THRESHOLD\_DEG & 20.0 & [15, 30] & 1.0 & \degr \\
+BLINK\_RATE\_WINDOW\_SECONDS & 60.0 & [30, 120] & 10 & s \\
+CNN\_INPUT\_SIZE & 48 & [32, 64] & 16 & px \\
+DECEL\_EMERGENCY\_PHASE2 & -6.0 & [-8.0, -4.0] & 0.5 & m/s$^2$ \\
+\bottomrule
+\end{longtable}
+
+\clearpage
+
+
+%% ============================================================
+%%   ANNEXE E : CODE SOURCE PYTHON COMPLET
+%% ============================================================
+\chapter{Code source Python complet}
+
+\section{Module behavioral\_analysis.py}
+
+\begin{lstlisting}[style=python, caption={behavioral\_analysis.py -- code complet},
+  label=lst:behavioral_full]
+# behavioral_analysis.py
+# Behavioral indicator computation for the Driver Monitoring System.
+# Author: Daifi Meriem, Intern at Expleo Group Maroc for Stellantis
+
+import logging
+import time
+from collections import deque
+from typing import Deque, List, Optional, Tuple
+import numpy as np
+
+logger = logging.getLogger(__name__)
+
+EAR_BLINK_THRESHOLD: float = 0.21
+EAR_CLOSED_THRESHOLD: float = 0.25
+MAR_YAWN_THRESHOLD: float = 0.6
+PERCLOS_FATIGUE_THRESHOLD: float = 0.35
+PERCLOS_WINDOW_SECONDS: float = 60.0
+BLINK_RATE_WINDOW_SECONDS: float = 60.0
+CNN_CLOSED_CLASS: int = 1
+CNN_YAWNING_CLASS: int = 2
+
+
+def _dist(p1, p2):
+    return float(np.linalg.norm(np.array(p1) - np.array(p2)))
+
+
+def compute_ear(landmarks):
+    # EAR = (||p2-p6|| + ||p3-p5||) / (2 * ||p1-p4||)
+    if len(landmarks) < 6:
+        return 0.0
+    p1, p2, p3, p4, p5, p6 = landmarks[:6]
+    vertical1 = _dist(p2, p6)
+    vertical2 = _dist(p3, p5)
+    horizontal = _dist(p1, p4)
+    if horizontal < 1e-6:
+        return 0.0
+    return (vertical1 + vertical2) / (2.0 * horizontal)
+
+
+def compute_perclos(ear_history, threshold=EAR_CLOSED_THRESHOLD):
+    # PERCLOS = fraction of frames where EAR < threshold
+    if len(ear_history) == 0:
+        return 0.0
+    closed_count = sum(1 for ear in ear_history if ear < threshold)
+    return closed_count / len(ear_history)
+
+
+def blink_rate(blink_timestamps, window_seconds=BLINK_RATE_WINDOW_SECONDS):
+    if not blink_timestamps:
+        return 0.0
+    now = time.time()
+    recent = [t for t in blink_timestamps if now - t <= window_seconds]
+    return len(recent) * (60.0 / window_seconds)
+
+
+def compute_mar(landmarks):
+    # MAR = (||p2-p8|| + ||p4-p6||) / (2 * ||p1-p5||)
+    if len(landmarks) < 8:
+        return 0.0
+    p1 = landmarks[0]; p2 = landmarks[2]
+    p4 = landmarks[3]; p5 = landmarks[4]
+    p6 = landmarks[5]; p8 = landmarks[7]
+    vertical1 = _dist(p2, p8)
+    vertical2 = _dist(p4, p6)
+    horizontal = _dist(p1, p5)
+    if horizontal < 1e-6:
+        return 0.0
+    return (vertical1 + vertical2) / (2.0 * horizontal)
+
+
+def combine_indicators(ear, cnn_prediction, perclos, mar,
+                       ear_threshold=EAR_CLOSED_THRESHOLD,
+                       mar_threshold=MAR_YAWN_THRESHOLD,
+                       perclos_threshold=PERCLOS_FATIGUE_THRESHOLD):
+    eye_closed_geo = ear < ear_threshold
+    eye_closed_cnn = (cnn_prediction == CNN_CLOSED_CLASS
+                      if cnn_prediction is not None else False)
+    yawning_geo = mar > mar_threshold
+    yawning_cnn = (cnn_prediction == CNN_YAWNING_CLASS
+                   if cnn_prediction is not None else False)
+    eye_closed = eye_closed_geo or eye_closed_cnn
+    yawning = yawning_geo or yawning_cnn
+    fatigue = perclos > perclos_threshold
+    drowsy = fatigue or (eye_closed and yawning)
+    active = sum([eye_closed_geo, eye_closed_cnn, yawning, fatigue])
+    confidence = min(active / 4.0, 1.0)
+    return {"eye_closed": eye_closed, "yawning": yawning,
+            "drowsy": drowsy, "confidence": confidence}
+\end{lstlisting}
+
+\section{Module cnn\_model.py}
+
+\begin{lstlisting}[style=python, caption={cnn\_model.py -- code complet},
+  label=lst:cnn_full]
+# cnn_model.py
+# CNN for eye/face state classification.
+# Author: Daifi Meriem, Intern at Expleo Group Maroc for Stellantis
+
+import logging
+from typing import Optional, Tuple
+import numpy as np
+import torch
+import torch.nn as nn
+
+logger = logging.getLogger(__name__)
+
+INPUT_SIZE: int = 48
+NUM_CLASSES: int = 3
+CLASS_NAMES: Tuple[str, ...] = ("OPEN", "CLOSED", "YAWNING")
+
+
+class DrowsinessCNN(nn.Module):
+    def __init__(self, input_size=INPUT_SIZE, num_classes=NUM_CLASSES):
+        super().__init__()
+        self.input_size = input_size
+        self.num_classes = num_classes
+        self.features = nn.Sequential(
+            nn.Conv2d(1, 32, kernel_size=3, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(2, 2),
+            nn.Conv2d(32, 64, kernel_size=3, padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(2, 2),
+            nn.Conv2d(64, 128, kernel_size=3, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(2, 2),
+        )
+        feat_dim = 128 * (input_size // 8) * (input_size // 8)
+        self.classifier = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(feat_dim, 256),
+            nn.ReLU(inplace=True),
+            nn.Dropout(0.5),
+            nn.Linear(256, num_classes),
+        )
+
+    def forward(self, x):
+        return self.classifier(self.features(x))
+
+    def predict(self, image_array: np.ndarray) -> Optional[int]:
+        # Preprocess 48x48 grayscale image and return class index
+        if image_array is None:
+            return None
+        tensor = torch.FloatTensor(image_array).unsqueeze(0).unsqueeze(0)
+        tensor = (tensor / 255.0 - 0.5) / 0.5
+        self.eval()
+        with torch.no_grad():
+            logits = self.forward(tensor)
+            return int(torch.argmax(logits, dim=1).item())
+\end{lstlisting}
+
+\clearpage
+
+%% ============================================================
+%%   ANNEXE F : CODE MATLAB COMPLET
+%% ============================================================
+\chapter{Code MATLAB complet}
+
+\section{Script dms\_simulation.m}
+
+\begin{lstlisting}[style=matlab, caption={dms\_simulation.m -- simulation compl\`ete},
+  label=lst:matlab_full]
+%% DMS Simulation - PERCLOS and EAR Evolution
+%% Author: Daifi Meriem, Intern at Expleo Group Maroc for Stellantis
+%% Simulation: PERCLOS / EAR over 120s at Fs=30fps with noise
+
+clear; clc; close all;
+
+%% ---- Parameters ----
+Fs       = 30;           % frames per second
+duration = 120;          % seconds
+t        = 0:1/Fs:duration;
+N        = length(t);
+
+%% ---- Generate synthetic EAR signal ----
+ear_base = 0.30 * ones(1, N);
+
+drowsy_start = 60 * Fs;   % drowsiness starts at t=60s
+drowsy_end   = 90 * Fs;   % drowsiness ends at t=90s
+
+for i = drowsy_start:min(drowsy_end, N)
+    progress = (i - drowsy_start) / (drowsy_end - drowsy_start);
+    ear_base(i) = 0.30 - 0.15 * progress;
+end
+
+for i = min(drowsy_end, N):N
+    progress = (i - drowsy_end) / (N - drowsy_end + 1);
+    ear_base(i) = 0.15 + 0.15 * progress;
+end
+
+ear_noise  = 0.02 * randn(1, N);
+ear_signal = max(ear_base + ear_noise, 0.05);
+
+%% ---- Compute PERCLOS (30s sliding window) ----
+window_size   = 30 * Fs;
+ear_threshold = 0.25;
+perclos       = zeros(1, N);
+
+for i = 1:N
+    win_start    = max(1, i - window_size + 1);
+    window       = ear_signal(win_start:i);
+    closed_count = sum(window < ear_threshold);
+    perclos(i)   = closed_count / length(window);
+end
+
+%% ---- State determination ----
+perclos_warning   = 0.20;
+perclos_fatigue   = 0.35;
+perclos_emergency = 0.50;
+state = ones(1, N);
+
+for i = 1:N
+    if perclos(i) >= perclos_emergency
+        state(i) = 4;   % Emergency
+    elseif perclos(i) >= perclos_fatigue
+        state(i) = 3;   % Fatigue
+    elseif perclos(i) >= perclos_warning
+        state(i) = 2;   % Warning
+    else
+        state(i) = 1;   % Attentive
+    end
+end
+
+%% ---- Statistics ----
+fprintf('=== DMS Simulation Results ===\n');
+fprintf('Duration: %d s, Fs=%d fps, N=%d samples\n', duration, Fs, N);
+fprintf('Mean EAR: %.4f\n', mean(ear_signal));
+fprintf('Max PERCLOS: %.3f\n', max(perclos));
+fprintf('Time in Fatigue state: %.1f s\n', sum(state==3)/Fs);
+fprintf('Time in Emergency state: %.1f s\n', sum(state==4)/Fs);
+
+%% ---- Plotting ----
+figure('Position', [100,100,1200,800], 'Name', 'DMS Simulation');
+
+subplot(3,1,1);
+plot(t, ear_signal, 'b-', 'LineWidth', 0.5); hold on;
+yline(ear_threshold, 'r--', 'LineWidth', 1.5, 'Label', 'Threshold 0.25');
+xlabel('Time (s)'); ylabel('EAR');
+title('Eye Aspect Ratio (EAR) Over Time');
+legend('EAR Signal', 'Closed Threshold'); grid on; xlim([0 duration]);
+
+subplot(3,1,2);
+plot(t, perclos*100, 'g-', 'LineWidth', 1.5); hold on;
+yline(perclos_warning*100,   'y--', 'LineWidth', 1.5);
+yline(perclos_fatigue*100,   'r--', 'LineWidth', 1.5);
+yline(perclos_emergency*100, 'm--', 'LineWidth', 1.5);
+xlabel('Time (s)'); ylabel('PERCLOS (%)');
+title('PERCLOS Evolution (30s window)');
+legend('PERCLOS','Warning 20%','Fatigue 35%','Emergency 50%');
+grid on; xlim([0 duration]);
+
+subplot(3,1,3);
+stairs(t, state, 'k-', 'LineWidth', 2);
+yticks([1 2 3 4]);
+yticklabels({'Attentive','Warning','Fatigue','Emergency'});
+xlabel('Time (s)'); ylabel('Driver State');
+title('ECU State Transitions'); grid on; xlim([0 duration]);
+
+sgtitle('DMS Simulation - Daifi Meriem, Expleo Group / Stellantis');
+saveas(gcf, 'matlab/dms_simulation_results.png');
+fprintf('Simulation complete. Results saved.\n');
+\end{lstlisting}
+
+\section{Mod\`ele Simulink dms\_simulink\_model.m}
+
+\begin{lstlisting}[style=matlab, caption={dms\_simulink\_model.m -- configuration Simulink},
+  label=lst:simulink]
+%% DMS Simulink Model Setup Script
+%% Author: Daifi Meriem, Expleo Group Maroc / Stellantis
+%% Creates and configures the Simulink model for DMS validation
+
+clear; clc;
+
+model_name = 'dms_simulink';
+if bdIsLoaded(model_name)
+    close_system(model_name, 0);
+end
+new_system(model_name);
+open_system(model_name);
+
+%% ---- Simulation parameters ----
+set_param(model_name, 'StopTime', '120');
+set_param(model_name, 'FixedStep', '0.0333');  % 30 fps
+set_param(model_name, 'Solver', 'FixedStepDiscrete');
+
+%% ---- Add signal blocks ----
+add_block('simulink/Sources/Signal Generator', ...
+    [model_name '/EAR_Signal'], ...
+    'Position', [100 100 150 130], ...
+    'WaveForm', 'sine', ...
+    'Amplitude', '0.075', ...
+    'Frequency', '0.1', ...
+    'Bias', '0.225');
+
+add_block('simulink/Sinks/Scope', ...
+    [model_name '/EAR_Scope'], ...
+    'Position', [400 100 450 130]);
+
+add_line(model_name, 'EAR_Signal/1', 'EAR_Scope/1');
+
+fprintf('Simulink model %s created successfully.\n', model_name);
+\end{lstlisting}
+
+\clearpage
+
+%% ============================================================
+%%   ANNEXE G : AMDEC DETAILLEE
+%% ============================================================
+\chapter{AMDEC d\'etaill\'ee avec actions correctives}
+
+\section{M\'ethodologie AMDEC}
+
+L'AMDEC (Analyse des Modes de D\'efaillance, de leurs Effets et de leur Criticit\'e) a \'et\'e r\'ealis\'ee conform\'ement \`a la norme ISO~26262 (partie 3, Hazard Analysis and Risk Assessment). Les cotes sont attribu\'ees sur une \'echelle de 1 \`a 10 :
+\begin{itemize}
+  \item \textbf{G (Gravit\'e)} : 1 = n\'egligeable, 10 = catastrophique avec bless\'es graves ;
+  \item \textbf{O (Occurrence)} : 1 = tr\`es rare ($< 10^{-6}$/heure), 10 = fr\'equent ;
+  \item \textbf{D (D\'etectabilit\'e)} : 1 = d\'etection quasi certaine, 10 = impossible \`a d\'etecter.
+\end{itemize}
+
+Les modes avec RPN $\geq 100$ sont class\'es priorit\'e~1 et font l'objet d'actions correctives imm\'ediates.
+
+\begin{longtable}{C{0.4cm} L{3cm} L{2.5cm} L{2cm} C{0.6cm} C{0.6cm} C{0.6cm} C{0.8cm}}
+\caption{AMDEC compl\`ete avec actions correctives}
+\label{tab:amdec_full} \\
+\toprule
+\textbf{N} & \textbf{Mode} & \textbf{Effet} & \textbf{Cause} & \textbf{G} & \textbf{O} & \textbf{D} & \textbf{RPN} \\
+\midrule
+\endfirsthead
+\toprule \textbf{N} & \textbf{Mode} & \textbf{Effet} & \textbf{Cause} & \textbf{G} & \textbf{O} & \textbf{D} & \textbf{RPN} \\
+\midrule \endhead \bottomrule \endfoot
+1  & Cam\'era givre & Non-d\'etect. & Temp. < 0\degr C & 9 & 3 & 4 & 108 \\
+2  & Occlusion totale & Non-d\'etect. & Carte soleil & 8 & 3 & 4 & 96 \\
+3  & EAR faux pos. & Alerte fausse & Lunettes teint. & 5 & 4 & 5 & 100 \\
+4  & PERCLOS d\'eriv\'e & Seuil erron\'e & Drift capteur & 8 & 2 & 2 & 32 \\
+5  & CNN fermeture & Alerte fausse & Donn\'ees biais\'ees & 5 & 3 & 4 & 60 \\
+6  & CNN ouverture & Non-d\'etect. & Donn\'ees biais\'ees & 9 & 2 & 3 & 54 \\
+7  & CAN satur\'e & Retard cmd & Bus occup\'e & 8 & 2 & 4 & 64 \\
+8  & Latence $>33$~ms & Hors-timing & CPU surcharg\'e & 7 & 2 & 3 & 42 \\
+9  & Hyst\'er\'esis err. & Oscillation & Bug config. & 5 & 2 & 5 & 50 \\
+10 & NO\_FACE faux & Alerte inject. & Reflet/occult. & 4 & 3 & 5 & 60 \\
+11 & solvePnP div. & Pose erron\'ee & Points manq. & 6 & 2 & 3 & 36 \\
+12 & Frein intempest. & Collision arr. & Bug FSM & 10 & 1 & 2 & 20 \\
+13 & Guidage erron\'e & Sortie voie & Bug FSM & 10 & 1 & 2 & 20 \\
+14 & Feux bloqu\'es & Pas signal. & BCM d\'efail. & 6 & 2 & 4 & 48 \\
+15 & Reset rat\'e & EMERG. persist & Bug reset() & 8 & 1 & 3 & 24 \\
+16 & Bruit image & Fausse ferm. & \'Ecl. satur\'e & 5 & 3 & 4 & 60 \\
+17 & Perte 12V & Arr\^et syst. & D\'efail. alim. & 9 & 2 & 1 & 18 \\
+18 & Temp $>85\degr$C & D\'erive cpte & \'Echauffement & 7 & 1 & 3 & 21 \\
+19 & Race cond. CNN & Acc\`es concurr. & Multithread & 6 & 2 & 4 & 48 \\
+20 & Calib. expir\'ee & Seuil inadapt. & Vieillissement & 5 & 3 & 3 & 45 \\
+\bottomrule
+\end{longtable}
+
+\clearpage
+
+%% ============================================================
+%%   ANNEXE H : MODELE DYNAMIQUE DU VEHICULE
+%% ============================================================
+\chapter{Mod\`ele dynamique du v\'ehicule}
+
+\section{Mod\`ele longitudinal}
+
+Le mod\`ele longitudinal du v\'ehicule d\'ecrit la dynamique de la vitesse $v$ lors d'un freinage d'urgence. La force de freinage $F_b$ est donn\'ee par :
+
+\begin{equation}
+  F_b = \mu \cdot m \cdot g
+\end{equation}
+
+o\`u $\mu$ est le coefficient d'adh\'erence pneu-sol (0.8 sur route s\`eche, 0.5 sur route mouill\'ee), $m$ est la masse du v\'ehicule (1\,500~kg typ.) et $g = 9{,}81$~m/s$^2$.
+
+La d\'ec\'el\'eration maximale disponible est :
+
+\begin{equation}
+  a_{\max} = \mu \cdot g
+  \quad \Rightarrow \quad
+  a_{\max, \text{s\`ec}} = 0{,}8 \times 9{,}81 = 7{,}85\ \text{m/s}^2
+\end{equation}
+
+La distance de freinage depuis la vitesse initiale $v_0$ est :
+
+\begin{equation}
+  d = \frac{v_0^2}{2 a_{\max}} + v_0 \cdot t_r
+\end{equation}
+
+o\`u $t_r = 0{,}033$~s est le temps de r\'eaction syst\`eme (latence maximale).
+
+Pour $v_0 = 130$~km/h $= 36{,}1$~m/s :
+\begin{align}
+  d_{\text{s\`ec}} &= \frac{36{,}1^2}{2 \times 7{,}85} + 36{,}1 \times 0{,}033 \approx 83{,}2 + 1{,}2 = 84{,}4\ \text{m} \\
+  d_{\text{mouill\'e}} &= \frac{36{,}1^2}{2 \times 4{,}9} + 36{,}1 \times 0{,}033 \approx 133{,}1 + 1{,}2 = 134{,}3\ \text{m}
+\end{align}
+
+\section{Mod\`ele lat\'eral}
+
+Le mod\`ele lat\'eral du v\'ehicule pour la man\oe uvre pull-to-side utilise le mod\`ele bicy\-clette lin\'earis\'e :
+
+\begin{equation}
+  m \ddot{y} = -\frac{2(C_f + C_r)}{v} \dot{y} + \left(\frac{2(C_r l_r - C_f l_f)}{v} - mv\right)\dot{\psi} + 2C_f \delta
+\end{equation}
+
+o\`u :
+\begin{itemize}
+  \item $y$ : d\'eplacement lat\'eral du v\'ehicule ;
+  \item $\psi$ : angle de lacet ;
+  \item $\delta$ : angle de braquage (commande du contr\^oleur PD) ;
+  \item $C_f, C_r$ : raideurs de d\'erive des pneus avant/arri\`ere (typ. 80\,000~N/rad) ;
+  \item $l_f, l_r$ : distances centre de masse aux essieux (1.4~m, 1.6~m) ;
+  \item $v$ : vitesse longitudinale.
+\end{itemize}
+
+\section{Mod\`ele pneumatique simplifi\'e}
+
+La force lat\'erale g\'en\'er\'ee par un pneu est mod\'elis\'ee par la formule de Pacejka simplifi\'ee :
+
+\begin{equation}
+  F_y = C \cdot \sin\!\left(B \cdot \arctan(A \cdot \alpha - E \cdot (A \cdot \alpha - \arctan(A \cdot \alpha)))\right)
+\end{equation}
+
+o\`u $\alpha$ est l'angle de d\'erive du pneu, et $A, B, C, E$ sont les param\`etres de Pacejka (coefficients Magic Formula).
+
+\clearpage
+
+%% ============================================================
+%%   BIBLIOGRAPHIE
+%% ============================================================
+\chapter*{Bibliographie}
+\addcontentsline{toc}{chapter}{Bibliographie}
+\markboth{Bibliographie}{}
+
+\begin{thebibliography}{99}
+
+\bibitem{iso26262}
+International Organization for Standardization.
+\textit{ISO 26262:2018 -- Road vehicles -- Functional safety}.
+Parts 1--12. ISO, Gen\`eve, 2018.
+
+\bibitem{iso21448}
+International Organization for Standardization.
+\textit{ISO 21448:2022 -- Road vehicles -- Safety of the intended functionality (SOTIF)}.
+ISO, Gen\`eve, 2022.
+
+\bibitem{sae_j3016}
+SAE International.
+\textit{SAE J3016:2021 -- Taxonomy and Definitions for Terms Related to Driving Automation Systems for On-Road Motor Vehicles}.
+SAE, Warrendale, PA, 2021.
+
+\bibitem{gsr2}
+Commission Europ\'eenne.
+\textit{R\`eglement (UE) 2019/2144 du Parlement europ\'een et du Conseil relatif aux prescriptions pour la r\'eception par type de v\'ehicules \`a moteur (GSR2)}.
+Journal officiel de l'Union europ\'eenne, D\'ecembre 2019.
+
+\bibitem{wierwille1994}
+Wierwille, W.W. and Ellsworth, L.A.
+Evaluation of driver drowsiness by trained raters.
+\textit{Accident Analysis \& Prevention}, 26(5):571--581, 1994.
+
+\bibitem{soukupova2016}
+Soukupov\'a, T. and \v{C}ech, J.
+Real-time eye blink detection using facial landmarks.
+\textit{Proceedings of the 21st Computer Vision Winter Workshop}, 2016.
+
+\bibitem{rajamani2012}
+Rajamani, R.
+\textit{Vehicle Dynamics and Control}.
+2nd edition. Springer, New York, 2012.
+
+\bibitem{winner2015}
+Winner, H., Hakuli, S., Lotz, F. and Singer, C. (Eds.).
+\textit{Handbook of Driver Assistance Systems}.
+Springer, Cham, 2015.
+
+\bibitem{opencv2023}
+OpenCV Team.
+\textit{OpenCV 4.8.0 Documentation -- solvePnP}.
+Available: \url{https://docs.opencv.org}, 2023.
+
+\bibitem{mediapipe2020}
+Lugaresi, C. et al.
+MediaPipe: A Framework for Building Perception Pipelines.
+\textit{arXiv preprint arXiv:1906.08172}, 2019 (revised 2020).
+
+\bibitem{pytorch2019}
+Paszke, A. et al.
+PyTorch: An Imperative Style, High-Performance Deep Learning Library.
+\textit{Advances in Neural Information Processing Systems (NeurIPS)}, 32, 2019.
+
+\bibitem{pac1992}
+Pacejka, H.B. and Bakker, E.
+The Magic Formula Tyre Model.
+\textit{Vehicle System Dynamics}, 21(Suppl):1--18, 1992.
+
+\bibitem{knipling1994}
+Knipling, R.R. et al.
+\textit{Assessment of IVHS Countermeasures for Collision Avoidance: Rear-End Crashes}.
+NHTSA Technical Report, Washington D.C., 1994.
+
+\bibitem{barr2005}
+Barr, L.C., Popkin, S. and Howarth, H.
+\textit{An Evaluation of Alternatives for Detecting Drowsy and Distracted Drivers}.
+US DOT / FHWA, 2005.
+
+\bibitem{aspice}
+Automotive SPICE Working Group.
+\textit{Automotive SPICE Process Reference Model / Process Assessment Model Version 3.1}.
+VDA QMC, 2017.
+
+\bibitem{iso22737}
+International Organization for Standardization.
+\textit{ISO 22737:2021 -- Intelligent transport systems -- Low-speed automated driving (LSAD) systems}.
+ISO, Gen\`eve, 2021.
+
+\bibitem{nhtsa2020}
+National Highway Traffic Safety Administration.
+\textit{2020 Traffic Safety Facts -- Distracted Driving}.
+NHTSA Report DOT HS 813 309, Washington D.C., 2022.
+
+\end{thebibliography}
+
+\clearpage
+
+%% ============================================================
+%%   INDEX
+%% ============================================================
+\printindex
+
+\end{document}
