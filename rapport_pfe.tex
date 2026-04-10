@@ -1276,12 +1276,12 @@ Trois variantes d'unit\'e de traitement ont \'et\'e test\'ees :
 \begin{itemize}
   \item \textbf{Raspberry Pi~4B (4~Go RAM)} : configuration minimale, suffisante pour le mode Haar sans CNN ($\approx 15$~fps). Alimentation via USB-C 5V/3A.
   \item \textbf{NVIDIA Jetson Nano (4~Go RAM, 128 CUDA cores)} : configuration recommand\'ee. Permet l'inf\'erence CNN en temps r\'eel ($\approx 25$~fps). Alimentation 5V/4A barrel jack.
-  \item \textbf{PC / laptop (Intel i5+, NVIDIA GPU)} : pour le d\'eveloppement et l'entraînement CNN, ou la simulation MATLAB.
+  \item \textbf{PC / laptop (Intel i5+, NVIDIA GPU)} : pour le d\'eveloppement et l'entra\^inement CNN, ou la simulation MATLAB.
 \end{itemize}
 
 \subsubsection{Buzzer / haut-parleur (alerte Niveau~1)}
 
-Un buzzer pi\'ezo\'electrique 5V (modèle KY-006) ou un mini-haut-parleur 8\,$\Omega$~0,5~W pilot\'e via un amplificateur PAM8403 g\'en\`ere les alertes sonores du Niveau~1. Il est branch\'e sur une sortie GPIO PWM de la Raspberry Pi (GPIO18 par d\'efaut) ou contr\^ol\'e via \texttt{pygame.mixer} sur PC. Le signal d'alerte est une tonalité sinusoïdale 880~Hz durant 500~ms, répétée à 1~Hz jusqu'à acquittement.
+Un buzzer pi\'ezo\'electrique 5V (mod\`ele KY-006) ou un mini-haut-parleur 8\,$\Omega$~0,5~W pilot\'e via un amplificateur PAM8403 g\'en\`ere les alertes sonores du Niveau~1. Il est branch\'e sur une sortie GPIO PWM de la Raspberry Pi (GPIO18 par d\'efaut) ou contr\^ol\'e via \texttt{pygame.mixer} sur PC. Le signal d'alerte est une tonalit\'e sinuso\"idale 880~Hz durant 500~ms, r\'ep\'et\'ee \`a 1~Hz jusqu'\`a acquittement.
 
 \subsubsection{Moteur \`a masse d\'es\'equilibr\'ee ERM (vibration si\`ege, Niveau~2)}
 
@@ -1289,11 +1289,11 @@ Un moteur ERM (\textit{Eccentric Rotating Mass}) de 3~V, d'un diam\`etre de 10~m
 
 \subsubsection{Actionneur LRA (vibration volant, Niveau~2)}
 
-Un actionneur LRA (\textit{Linear Resonant Actuator}) TI DRV2605L-EVM, pilot\'e par protocole I$^2$C depuis la Raspberry Pi, g\'en\`ere des vibrations de précision (fréquence de résonance : 205~Hz) dans la jante du volant. Son faible encombrement (diam\`etre 10~mm, \'epaisseur 2,7~mm) permet l'int\'egration dans les strates en mousse du volant sans modification visible.
+Un actionneur LRA (\textit{Linear Resonant Actuator}) TI DRV2605L-EVM, pilot\'e par protocole I$^2$C depuis la Raspberry Pi, g\'en\`ere des vibrations de pr\'ecision (fr\'equence de r\'esonance : 205~Hz) dans la jante du volant. Son faible encombrement (diam\`etre 10~mm, \'epaisseur 2,7~mm) permet l'int\'egration dans les strates en mousse du volant sans modification visible.
 
 \subsubsection{Interface CAN vers ECU frein (Niveau~3)}
 
-Pour les commandes de Niveau~3 (freinage d'urgence, manœuvre pull-to-side), le prototype utilise un contrôleur CAN \textbf{MCP2515} connect\'e via SPI \`a la Raspberry Pi, coupl\'e \`a un transceiver \textbf{TJA1050}. La connexion physique au bus CAN du v\'ehicule se fait via le connecteur OBD-II~(port~6/14 pour CAN-H/CAN-L). En laboratoire, un simulateur Vector CANalyzer ou \texttt{python-can} avec interface PCAN-USB remplace l'ECU r\'eel.
+Pour les commandes de Niveau~3 (freinage d'urgence, man\oe uvre pull-to-side), le prototype utilise un contr\^oleur CAN \textbf{MCP2515} connect\'e via SPI \`a la Raspberry Pi, coupl\'e \`a un transceiver \textbf{TJA1050}. La connexion physique au bus CAN du v\'ehicule se fait via le connecteur OBD-II~(port~6/14 pour CAN-H/CAN-L). En laboratoire, un simulateur Vector CANalyzer ou \texttt{python-can} avec interface PCAN-USB remplace l'ECU r\'eel.
 
 \subsubsection{Relais GPIO pour feux de d\'etresse (Niveau~3)}
 
@@ -1358,7 +1358,7 @@ Un module relais 5V (SRD-05VDC-SL-C, contact NO/NC 10A) command\'e depuis un GPI
 
 La \textbf{cam\'era} (composant~1) est positionn\'ee sur la colonne de direction, \`a environ~30~cm du visage du conducteur, pointant vers le haut avec un angle d'inclinaison de~$10\degr$ pour couvrir la zone frontale et les yeux. Elle est maintenue par un support imprim\'e en~PLA (fixation ventouse ou rail T-slot), orient\'e selon l'axe $Z$ vers le conducteur.
 
-L'\textbf{unit\'e centrale} (composant~2) est plac\'ee dans le vid\'e-poche c\^ot\'e passager ou dans le coffret sous-tableau, fixe par velcro industriel et ventil\'ee par un mini-ventilateur 5V. Un connecteur JST relie le boîtier au connecteur OBD-II pour l'alimentation 12V (convertie en 5V via r\'egulateur buck LM2596) et l'acc\`es au bus CAN.
+L'\textbf{unit\'e centrale} (composant~2) est plac\'ee dans le vid\'e-poche c\^ot\'e passager ou dans le coffret sous-tableau, fixe par velcro industriel et ventil\'ee par un mini-ventilateur 5V. Un connecteur JST relie le bo\^itier au connecteur OBD-II pour l'alimentation 12V (convertie en 5V via r\'egulateur buck LM2596) et l'acc\`es au bus CAN.
 
 \subsection{Sch\'ema de c\^ablage d\'etaill\'e}
 
@@ -1572,16 +1572,16 @@ sudo ip link show can0
   \item \textbf{Buzzer KY-006} : brancher S $\to$ GPIO18, + $\to$ 5V, G $\to$ GND.
   \item \textbf{Moteur ERM} : c\^obler base du transistor 2N2222 via r\'esistance 1k$\Omega$ vers GPIO24, \'emetteur vers GND, collecteur vers (-) du moteur. Le (+) du moteur est sur 3.3V. Placer une diode 1N4007 en anti-retour aux bornes du moteur.
   \item \textbf{LRA DRV2605L} : connecter SDA $\to$ GPIO2 (pin~3), SCL $\to$ GPIO3 (pin~5), VCC $\to$ 3.3V, GND $\to$ GND. Ajouter deux r\'esistances pull-up 10k$\Omega$ entre SDA/SCL et 3.3V.
-  \item \textbf{Relais} : IN $\to$ GPIO23 (via 1k$\Omega$), VCC $\to$ 5V, GND $\to$ GND. Le NO du relais est inséré en série dans le circuit des feux de d\'etresse 12V.
+  \item \textbf{Relais} : IN $\to$ GPIO23 (via 1k$\Omega$), VCC $\to$ 5V, GND $\to$ GND. Le NO du relais est ins\'er\'e en s\'erie dans le circuit des feux de d\'etresse 12V.
 \end{enumerate}
 
 \subsection{\'Etape~6 : Montage de la cam\'era dans le v\'ehicule}
 
 \begin{enumerate}
-  \item Imprimer le support cam\'era en PLA ($\approx$3~h \`a 15\% remplissage) ou commander le boîtier usin\'e.
-  \item Fixer le support sur la colonne de direction par pinces inox, ou sur la partie inf\'erieure du r\'etroviseur par adhésif double face VHB 3M.
+  \item Imprimer le support cam\'era en PLA ($\approx$3~h \`a 15\% remplissage) ou commander le bo\^itier usin\'e.
+  \item Fixer le support sur la colonne de direction par pinces inox, ou sur la partie inf\'erieure du r\'etroviseur par adh\'esif double face VHB 3M.
   \item R\'egler l'orientation de fa\c{c}on \`a ce que le visage du conducteur soit centr\'e dans l'image \`a la position de conduite standard (r\'egler le si\`ege et v\'erifier avec \texttt{python -c "import cv2; cv2.imshow('t', cv2.VideoCapture(0).read()[1]); cv2.waitKey(0)"}).
-  \item Fixer le c\^able cam\'era avec des œillets auto-adhésifs de gestion de c\^ables, en l'acheminant par le montant A vers le vide-poches passager où se trouve le boîtier principal.
+  \item Fixer le c\^able cam\'era avec des \oe illets auto-adh\'esifs de gestion de c\^ables, en l'acheminant par le montant A vers le vide-poches passager o\`u se trouve le bo\^itier principal.
 \end{enumerate}
 
 \section{Installation du logiciel}
@@ -1660,11 +1660,11 @@ FINAL_TOUCH/
 `-- rapport_pfe.tex            # Rapport PFE (LaTeX)
 \end{lstlisting}
 
-\section{Pipeline d'entraînement du CNN}
+\section{Pipeline d'entra\^inement du CNN}
 
 \subsection{Pr\'eparation du jeu de donn\'ees}
 
-Le mod\`ele CNN DrowsinessCNN est entraîn\'e sur un jeu de donn\'ees d'images faciales et oculaires class\'ees en trois cat\'egories : \texttt{OPEN}, \texttt{CLOSED} et \texttt{YAWNING}. La structure de dossiers attendue est :
+Le mod\`ele CNN DrowsinessCNN est entra\^in\'e sur un jeu de donn\'ees d'images faciales et oculaires class\'ees en trois cat\'egories : \texttt{OPEN}, \texttt{CLOSED} et \texttt{YAWNING}. La structure de dossiers attendue est :
 
 \begin{lstlisting}[language=, caption={Structure du jeu de donn\'ees pour l'entraînement CNN}]
 data/
@@ -1682,11 +1682,11 @@ Chaque sous-dossier doit contenir au minimum 500 images au format JPEG ou PNG. L
 
 \subsection{Augmentation des donn\'ees}
 
-Le chargeur de donn\'ees \texttt{dataset\_loader.py} applique les transformations suivantes automatiquement pendant l'entraînement :
+Le chargeur de donn\'ees \texttt{dataset\_loader.py} applique les transformations suivantes automatiquement pendant l'entra\^inement :
 
 \begin{table}[H]
 \centering
-\caption{Transformations d'augmentation des donn\'ees appliquées lors de l'entraînement}
+\caption{Transformations d'augmentation des donn\'ees appliqu\'ees lors de l'entra\^inement}
 \label{tab:augmentation}
 \begin{tabular}{L{4.5cm} L{7cm}}
 \toprule
@@ -1700,7 +1700,7 @@ Normalize & mean = 0.5, std = 0.5 (canal gris) \\
 \end{tabular}
 \end{table}
 
-\subsection{Lancement de l'entraînement}
+\subsection{Lancement de l'entra\^inement}
 
 \begin{lstlisting}[style=python, caption={Commande d'entraînement du mod\`ele CNN}, label=lst:train]
 # Entrainement standard (50 epoques, batch 32, lr=0.001)
